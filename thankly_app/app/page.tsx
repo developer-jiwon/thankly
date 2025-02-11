@@ -288,7 +288,7 @@ function implementUserTypeChanges() {
                           value={newAppreciation}
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="Add new appreciation..."
-                          className="w-full pl-10 p-2 text-sm 
+                          className="w-full pl-10 p-2 text-base 
                                     bg-surface/40 backdrop-blur-md text-white
                                     rounded-lg border border-white/10
                                     focus:outline-none focus:border-white/20 placeholder-white/50"
