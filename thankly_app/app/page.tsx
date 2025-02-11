@@ -231,12 +231,12 @@ function implementUserTypeChanges() {
                   {daysInMonth.map((date, index) => (
                     <motion.div 
                       key={date.toString()}
-                      className={`aspect-square p-2 rounded-md flex flex-col items-center justify-center
-                                 relative group transition-all duration-200
+                      className={`aspect-square p-2 rounded-md flex flex-col items-center
+                                 relative
                                  ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                  ${selectedDate && formatDate(selectedDate) === formatDate(date) 
                                    ? 'bg-white/15 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
-                                   : 'hover:bg-white/5 hover:shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`}
+                                   : 'hover:bg-white/5'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -244,13 +244,13 @@ function implementUserTypeChanges() {
                       <span className="text-lg font-medium text-white group-hover:text-white/90">
                         {date.getDate()}
                       </span>
+                      
                       {(() => {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="absolute -top-1 -right-1">
-                              <span className="text-xs font-medium bg-white/10 text-white/90 
-                                             px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                            <div className="absolute -top-1.5 right-0">
+                              <span className="text-[10px] font-medium text-white/80">
                                 {count}
                               </span>
                             </div>
@@ -269,15 +269,7 @@ function implementUserTypeChanges() {
               <div className="max-w-md mx-auto p-6">
                 {selectedDate && (
                   <>
-                    <h2 className="text-sm font-medium mb-4 text-white">
-                      {selectedDate.toLocaleDateString('en-US', { 
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </h2>
-                    
-                    {/* New Inline Input Form */}
+                    {/* Simplified Input Form */}
                     <motion.form 
                       onSubmit={(e) => {
                         e.preventDefault();
@@ -286,42 +278,48 @@ function implementUserTypeChanges() {
                           setNewAppreciation('');
                         }
                       }}
-                      className="mb-4"
+                      className="mb-6"
                       initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <div className="relative flex items-center">
-                        <span className="absolute left-3 text-white/40">
-                          +
-                        </span>
                         <input
                           type="text"
                           value={newAppreciation}
                           onChange={(e) => setNewAppreciation(e.target.value)}
-                          placeholder="Add new appreciation..."
-                          className="w-full pl-10 p-2 text-base 
+                          placeholder="What are you grateful for today?"
+                          className="w-full pl-6 p-3 text-base 
                                     bg-surface/40 backdrop-blur-md text-white
                                     rounded-lg border border-white/10
-                                    focus:outline-none focus:border-white/20 placeholder-white/50"
+                                    focus:outline-none focus:border-white/20 
+                                    placeholder-white/40 placeholder:text-sm"
                           autoFocus
                         />
                       </div>
                     </motion.form>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {appreciations
                         .filter(a => a.date === formatDate(selectedDate))
                         .map(appreciation => (
                           <motion.div 
                             key={appreciation.id}
-                            className="p-3 rounded-lg 
-                                     bg-surface/40 backdrop-blur-md
-                                     flex items-center gap-2"
+                            className="p-4 rounded-xl 
+                                     bg-white/5 backdrop-blur-md
+                                     border border-white/10
+                                     hover:bg-white/10 transition-all duration-300
+                                     group relative"
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ scale: 1.02 }}
                           >
-                            <span className="text-white/60">•</span>
-                            <span className="text-sm flex-1 text-white">{appreciation.text}</span>
+                            <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 
+                                          bg-white/40 rounded-full opacity-0 group-hover:opacity-100
+                                          transition-opacity duration-300" />
+                            <p className="text-sm flex-1 text-white/90 leading-relaxed
+                                        group-hover:text-white transition-colors duration-300">
+                              {appreciation.text}
+                            </p>
                           </motion.div>
                         ))}
                     </div>
