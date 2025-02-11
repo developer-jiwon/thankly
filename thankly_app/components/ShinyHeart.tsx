@@ -1,30 +1,76 @@
+'use client'
+
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
 
-export function ShinyHeart({ size = 18, className = '' }) {
+interface ShinyHeartProps {
+  size?: number
+  className?: string
+}
+
+export function ShinyHeart({ size = 24, className = '' }: ShinyHeartProps) {
   return (
-    <motion.div
-      className={`relative ${className}`}
-      whileHover={{ scale: 1.2 }}
-      whileTap={{ scale: 0.9 }}
-    >
+    <div className="relative inline-block">
       <motion.div
-        className="absolute inset-0 bg-blue-300 dark:bg-pink-300 rounded-full blur-sm"
+        initial={{ scale: 1 }}
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.7, 0.3, 0.7],
+          scale: [1, 1.1, 1],
         }}
         transition={{
-          duration: 2,
+          duration: 3,
           repeat: Infinity,
-          repeatType: "reverse",
+          ease: "easeInOut"
         }}
-      />
-      <Heart 
-        size={size} 
-        className="relative z-10 text-blue-500 dark:text-pink-500 fill-current animate-pulse" 
-      />
-    </motion.div>
+        className="relative"
+      >
+        {/* Glass effect background */}
+        <motion.div
+          className="absolute inset-0 blur-xl"
+          initial={{ opacity: 0.3 }}
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Heart
+            size={size}
+            className="fill-[#8B2252]/10 stroke-[#8B2252]/20"
+            strokeWidth={1}
+          />
+        </motion.div>
+
+        {/* Main heart with glass effect */}
+        <Heart
+          size={size}
+          className={`fill-transparent stroke-[#8B2252]/30 backdrop-blur-sm ${className}`}
+          strokeWidth={1.5}
+        />
+
+        {/* Shine effect */}
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0.2 }}
+          animate={{
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Heart
+            size={size}
+            className="fill-white/5 stroke-[#8B2252]/20"
+            strokeWidth={1}
+          />
+        </motion.div>
+      </motion.div>
+    </div>
   )
 }
 

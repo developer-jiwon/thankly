@@ -1,117 +1,103 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { signIn } from "next-auth/react"
+import { motion } from 'framer-motion'
+import { ShinyHeart } from './ShinyHeart'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ShinyHeart } from "./ShinyHeart"
-import { GuestButton } from "./GuestButton"
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { setUserId } from '@/utils/userIdentifier'
+import { WelcomeDialog } from './WelcomeDialog'
 
 export function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [name, setName] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      router.push("/")
-    } catch (error) {
-      console.error("Login error:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  const handleJournalStart = () => {
+    setIsDialogOpen(true)
   }
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true)
-    try {
-      await signIn("google", { callbackUrl: "/" })
-    } catch (error) {
-      console.error("Google sign in error:", error)
-      setIsLoading(false)
-    }
-  }
-
-  const handleGuestStart = () => {
-    try {
+  const handleNameSubmit = (): string | undefined => {
+    if (name.trim()) {
+      const userId = setUserId(name.trim())
+      
+      // Set authentication state
       localStorage.setItem('isGuest', 'true')
       localStorage.setItem('isAuthenticated', 'true')
-      window.location.href = '/'
-    } catch (error) {
-      console.error('Error starting guest session:', error)
+      document.cookie = 'isGuest=true; path=/'
+      document.cookie = 'isAuthenticated=true; path=/'
+      
+      // Return the URL that will be used
+      return `${window.location.origin}/${userId ? `#${userId}` : ''}`
     }
+    return undefined
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-white/5 flex items-center justify-center p-4 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-6 bg-white dark:bg-[#2a2a2a] rounded-lg shadow-lg"
+        className="w-full max-w-md p-8 bg-white/5 rounded-2xl shadow-2xl 
+                   backdrop-blur-sm border border-[#8B2252]/20 text-center"
       >
-        <div className="flex justify-center mb-6">
-          <ShinyHeart size={40} />
-        </div>
-        <h2 className="text-2xl font-semibold text-center mb-6">Login to Thankly</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Login"}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className="mb-8"
+        >
+          <ShinyHeart size={80} className="mx-auto text-[#8B2252]" />
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-4xl font-bold mb-4 text-[#8B2252] tracking-wide"
+        >
+          Thankly
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-[#8B2252]/80 mb-8 text-lg"
+        >
+          Your daily gratitude journal
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Button 
+            onClick={handleJournalStart}
+            className="w-full bg-[#8B2252]/80 hover:bg-[#8B2252] text-white 
+                     transition-all duration-300 backdrop-blur-sm
+                     border border-[#8B2252]/20
+                     text-lg py-6 rounded-xl"
+          >
+            Start Journal
           </Button>
-        </form>
-        <div className="mt-4">
-          <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Sign in with Google"}
-          </Button>
-        </div>
-        <GuestButton />
-        <p className="text-center mt-4 text-sm">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-blue-500 hover:underline">
-            Sign up
-          </a>
-        </p>
+        </motion.div>
       </motion.div>
+
+      <WelcomeDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        name={name}
+        setName={setName}
+        onSubmit={handleNameSubmit}
+      />
     </div>
   )
 }

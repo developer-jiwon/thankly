@@ -203,14 +203,14 @@ function implementUserTypeChanges() {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-white dark:bg-[#1e1e1e] text-black dark:text-white transition-colors duration-500">
+    <div className="h-screen w-screen overflow-hidden backdrop-blur-sm">
       <SideNav onNavItemClick={setSelectedNavItem} onLogout={handleLogout} />
       <div className="pl-[40px] sm:pl-[40px] h-full overflow-y-auto -webkit-overflow-scrolling-touch">
         {selectedNavItem === 'Home' ? (
           <div className="max-w-6xl mx-auto p-2 sm:p-4 h-full flex flex-col">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
               <motion.h1 
-                className="text-xl sm:text-2xl md:text-3xl font-bold"
+                className="text-xl sm:text-2xl md:text-3xl font-bold text-[#8B2252]"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -218,37 +218,45 @@ function implementUserTypeChanges() {
               >
                 Thankly
               </motion.h1>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setIsSearchOpen(true)}
-                  className="p-2 rounded-full bg-gray-200 dark:bg-[#444] transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-[#555]"
-                  title="Search Appreciations"
-                >
-                  <Search size={20} className="text-gray-700 dark:text-gray-300" />
-                </button>
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleExportData}
-                  className="p-2 rounded-full bg-gray-200 dark:bg-[#444] transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-[#555]"
+                  className="flex items-center justify-center w-7 h-7 hover:bg-gray-100 dark:hover:bg-gray-800 
+                            rounded-full transition-all duration-200"
                   title="Export Data"
                 >
-                  <Download size={20} className="text-gray-700 dark:text-gray-300" />
+                  <Download 
+                    size={15} 
+                    className="text-[#8B2252]/70 hover:text-[#8B2252] transition-colors duration-200" 
+                  />
                 </button>
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-full bg-gray-200 dark:bg-[#444] transition-colors duration-200"
+                  className="flex items-center justify-center w-7 h-7 hover:bg-gray-100 dark:hover:bg-gray-800 
+                            rounded-full transition-all duration-200"
                 >
                   {theme === 'dark' ? (
-                    <Sun size={20} className="text-yellow-500" />
+                    <Sun 
+                      size={15} 
+                      className="text-[#8B2252]/70 hover:text-[#8B2252] transition-colors duration-200" 
+                    />
                   ) : (
-                    <Moon size={20} className="text-blue-500" />
+                    <Moon 
+                      size={15} 
+                      className="text-[#8B2252]/70 hover:text-[#8B2252] transition-colors duration-200" 
+                    />
                   )}
                 </button>
                 <button
                   onClick={handleShare}
-                  className="p-2 rounded-full bg-gray-200 dark:bg-[#444] transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-[#555]"
+                  className="flex items-center justify-center w-7 h-7 hover:bg-gray-100 dark:hover:bg-gray-800 
+                            rounded-full transition-all duration-200"
                   title="Share Journal"
                 >
-                  <Share size={20} className="text-gray-700 dark:text-gray-300" />
+                  <Share 
+                    size={15} 
+                    className="text-[#8B2252]/70 hover:text-[#8B2252] transition-colors duration-200" 
+                  />
                 </button>
               </div>
             </div>
@@ -379,8 +387,6 @@ function implementUserTypeChanges() {
               )}
             </AnimatePresence>
           </div>
-        ) : selectedNavItem === 'Settings' ? (
-          <Settings userType={userType} />
         ) : (
           <div className="flex items-center justify-center h-screen">
             <h2 className="text-lg sm:text-xl font-light">No feature implemented yet</h2>
