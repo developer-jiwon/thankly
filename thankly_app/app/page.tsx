@@ -238,7 +238,9 @@ function implementUserTypeChanges() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-4 text-base mb-auto">
+                <div className="grid grid-cols-7 
+                              gap-2 lg:gap-3
+                              text-base mb-auto">
                   {WEEKDAYS.map(day => (
                     <div key={day} className="text-center text-xs font-medium tracking-wider uppercase text-white/50">
                       {day.slice(0,1)}
@@ -268,7 +270,7 @@ function implementUserTypeChanges() {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="absolute -top-1 -right-1">
+                            <div className="absolute -top-0.5 -right-0.5">
                               <span className="text-[10px] font-medium text-white/80">
                                 {count}
                               </span>
