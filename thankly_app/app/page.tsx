@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from 'next-themes'
-import { Sun, Moon, ChevronLeft, ChevronRight, Download, Search } from 'lucide-react'
+import { Sun, Moon, ChevronLeft, ChevronRight, Download, Search, Share } from 'lucide-react'
 import { getDaysInMonth, formatDate } from '../utils/dateUtils'
 import { getUserType, getFeatureLimits } from '../utils/userUtils'
 import { SideNav } from '../components/SideNav'
@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { getUserId } from '../utils/userIdentifier'
 
 const isPastDate = (date: Date) => {
   const today = new Date();
@@ -46,16 +47,38 @@ function implementUserTypeChanges() {
 
   useEffect(() => {
     setMounted(true)
-    const storedAppreciations = localStorage.getItem('appreciations')
+    const userId = getUserId()
+    const storedAppreciations = localStorage.getItem(`appreciations_${userId}`)
     if (storedAppreciations) {
       setAppreciations(JSON.parse(storedAppreciations))
     }
     setUserType(getUserType())
+    
+    if (!window.location.hash) {
+      window.location.hash = userId
+    }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('appreciations', JSON.stringify(appreciations))
+    const userId = getUserId()
+    localStorage.setItem(`appreciations_${userId}`, JSON.stringify(appreciations))
   }, [appreciations])
+
+  useEffect(() => {
+    const loadSharedData = () => {
+      const hash = window.location.hash.slice(1)
+      if (hash) {
+        const storedAppreciations = localStorage.getItem(`appreciations_${hash}`)
+        if (storedAppreciations) {
+          setAppreciations(JSON.parse(storedAppreciations))
+          // Store this as the current user's data
+          localStorage.setItem(`appreciations_${getUserId()}`, storedAppreciations)
+        }
+      }
+    }
+
+    loadSharedData()
+  }, [])
 
   const addAppreciation = (e: React.FormEvent) => {
     e.preventDefault()
@@ -136,11 +159,32 @@ function implementUserTypeChanges() {
   }
 
   const handleSearchSelect = (selectedIds: number[]) => {
-    // Here you can implement what happens when appreciations are selected from the search
-    // For now, let's just log the selected IDs and close the search
     console.log('Selected appreciation IDs:', selectedIds)
     setIsSearchOpen(false)
-    // You could also highlight these appreciations in the calendar view, for example
+  }
+
+  const getShareableLink = () => {
+    const userId = getUserId()
+    return `${window.location.origin}${window.location.pathname}#${userId}`
+  }
+
+  const handleShare = async () => {
+    const shareableLink = getShareableLink()
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Thankly Journal',
+          text: 'Check out my gratitude journal!',
+          url: shareableLink
+        })
+      } catch (error) {
+        console.log('Error sharing:', error)
+      }
+    } else {
+      navigator.clipboard.writeText(shareableLink)
+      toast.success('Link copied to clipboard!')
+    }
   }
 
   if (!mounted) return null
@@ -189,6 +233,13 @@ function implementUserTypeChanges() {
                   ) : (
                     <Moon size={20} className="text-blue-500" />
                   )}
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="p-2 rounded-full bg-gray-200 dark:bg-[#444] transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-[#555]"
+                  title="Share Journal"
+                >
+                  <Share size={20} className="text-gray-700 dark:text-gray-300" />
                 </button>
               </div>
             </div>
