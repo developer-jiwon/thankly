@@ -289,8 +289,21 @@ function implementUserTypeChanges() {
                       type="text"
                       value={newAppreciation}
                       onChange={(e) => setNewAppreciation(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addAppreciation(e);
+                        }
+                      }}
+                      enterKeyHint="done"
+                      onKeyUp={(e) => {
+                        if (e.key === 'Enter' || e.keyCode === 13) {
+                          addAppreciation(e);
+                        }
+                      }}
                       placeholder={selectedDate ? `Thankful for on ${formatDate(selectedDate)}?` : 'Select a date'}
-                      className="w-full p-2 text-sm sm:text-base border-b-2 border-gray-300 dark:border-[#444] focus:outline-none focus:border-gray-500 dark:focus:border-[#666] bg-transparent"
+                      className="w-full p-2 text-base border-b-2 border-gray-300 dark:border-[#444] focus:outline-none focus:border-gray-500 dark:focus:border-[#666] bg-transparent"
+                      style={{ fontSize: '16px' }}
                       disabled={!selectedDate}
                     />
                   </motion.form>
