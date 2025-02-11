@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTheme } from 'next-themes'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getDaysInMonth, formatDate } from '../utils/dateUtils'
 import { getUserType, getFeatureLimits } from '../utils/userUtils'
@@ -34,7 +33,6 @@ function implementUserTypeChanges() {
   const [appreciations, setAppreciations] = useState<Appreciation[]>([])
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
-  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [selectedNavItem, setSelectedNavItem] = useState('Home')
   const [userType, setUserType] = useState<'guest' | 'registered' | 'unauthenticated'>('unauthenticated')
@@ -99,10 +97,6 @@ function implementUserTypeChanges() {
       setSelectedDate(date);
     }
   };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated')
@@ -197,33 +191,35 @@ function implementUserTypeChanges() {
       <div className="flex-1 pl-[40px]">
         <div className="h-screen flex flex-col lg:flex items-start lg:items-center lg:justify-center p-4 overflow-hidden">
           <div className="flex flex-col lg:flex-row w-full max-w-5xl 
-                        bg-white/80 dark:bg-black/80 backdrop-blur-md
+                        bg-black/90 backdrop-blur-md
                         rounded-xl shadow-xl
                         h-full lg:h-auto lg:min-h-[600px]">
             
             {/* Calendar Section */}
-            <div className="w-full lg:w-[320px] p-6 lg:border-r border-primary-light/10
+            <div className="w-full 
+                          lg:w-[400px] p-8
+                          lg:border-r border-primary-light/10
                           bg-transparent
                           flex-shrink-0 flex flex-col justify-center
                           lg:h-auto">
               <div className="max-w-sm mx-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-medium">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-base font-medium text-white">
                     {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button onClick={() => changeMonth(-1)}>
-                      <ChevronLeft size={16} />
+                      <ChevronLeft size={20} className="text-white" />
                     </button>
                     <button onClick={() => changeMonth(1)}>
-                      <ChevronRight size={16} />
+                      <ChevronRight size={20} className="text-white" />
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1 text-xs mb-auto">
+                <div className="grid grid-cols-7 gap-2 text-sm mb-auto">
                   {WEEKDAYS.map(day => (
-                    <div key={day} className="text-center text-[10px] text-primary/60">
+                    <div key={day} className="text-center text-xs text-white/60">
                       {day.slice(0,1)}
                     </div>
                   ))}
@@ -234,16 +230,16 @@ function implementUserTypeChanges() {
                       className={`aspect-square p-1 rounded-sm flex flex-col items-center
                                  ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                  ${selectedDate && formatDate(selectedDate) === formatDate(date) 
-                                   ? 'bg-primary/10' : 'hover:bg-primary/5'}`}
+                                   ? 'bg-white/10' : 'hover:bg-white/5'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
                     >
-                      <span className="text-xs">{date.getDate()}</span>
+                      <span className="text-sm font-medium text-white">{date.getDate()}</span>
                       {(() => {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="mt-0.5">
-                              <span className="text-[10px] font-medium text-primary">
+                            <div className="mt-1">
+                              <span className="text-xs font-medium text-white/80">
                                 {count}
                               </span>
                             </div>
@@ -262,7 +258,7 @@ function implementUserTypeChanges() {
               <div className="max-w-md mx-auto p-6">
                 {selectedDate && (
                   <>
-                    <h2 className="text-sm font-medium mb-4">
+                    <h2 className="text-sm font-medium mb-4 text-white">
                       {selectedDate.toLocaleDateString('en-US', { 
                         month: 'long',
                         day: 'numeric',
@@ -284,7 +280,7 @@ function implementUserTypeChanges() {
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <div className="relative flex items-center">
-                        <span className="absolute left-3 text-primary/40">
+                        <span className="absolute left-3 text-white/40">
                           +
                         </span>
                         <input
@@ -293,9 +289,9 @@ function implementUserTypeChanges() {
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="Add new appreciation..."
                           className="w-full pl-10 p-2 text-sm 
-                                    bg-white/40 dark:bg-black/40 backdrop-blur-md
-                                    rounded-lg border border-primary/10
-                                    focus:outline-none focus:border-primary/20"
+                                    bg-black/40 backdrop-blur-md text-white
+                                    rounded-lg border border-white/10
+                                    focus:outline-none focus:border-white/20 placeholder-white/50"
                           autoFocus
                         />
                       </div>
@@ -308,13 +304,13 @@ function implementUserTypeChanges() {
                           <motion.div 
                             key={appreciation.id}
                             className="p-3 rounded-lg 
-                                     bg-white/40 dark:bg-black/40 backdrop-blur-md
+                                     bg-black/40 backdrop-blur-md
                                      flex items-center gap-2"
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                           >
-                            <span className="text-primary/60">•</span>
-                            <span className="text-sm flex-1">{appreciation.text}</span>
+                            <span className="text-white/60">•</span>
+                            <span className="text-sm flex-1 text-white">{appreciation.text}</span>
                           </motion.div>
                         ))}
                     </div>
