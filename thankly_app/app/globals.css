@@ -129,11 +129,11 @@ input, textarea {
 
 @keyframes glow {
   0%, 100% { 
-    filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.8));
     opacity: 0.9;
   }
   50% { 
-    filter: drop-shadow(0 0 6px rgba(255,255,255,0.95));
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.95));
     opacity: 1;
   }
 }

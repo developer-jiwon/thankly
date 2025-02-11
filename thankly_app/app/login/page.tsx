@@ -1,6 +1,92 @@
+'use client'
+
 import { LoginForm } from '@/components/LoginForm'
+import { ShinyHeart } from '@/components/ShinyHeart'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function LoginPage() {
-  return <LoginForm />
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [showNameInput, setShowNameInput] = useState(false)
+
+  const handleGuestLogin = () => {
+    if (!showNameInput) {
+      setShowNameInput(true)
+      return
+    }
+    
+    if (!name.trim()) {
+      return
+    }
+
+    // Set guest mode in localStorage
+    localStorage.setItem('isGuest', 'true')
+    localStorage.setItem('userName', name.trim())
+    
+    // Generate a temporary guest ID if needed
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', `guest_${Date.now()}`)
+    }
+    
+    // Redirect to main app
+    router.push('/')
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4
+                   bg-gradient-app">
+      <div className="w-full max-w-sm 
+                    bg-surface/95 backdrop-blur-lg
+                    rounded-xl shadow-xl p-6">
+        {/* Logo Section */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="mb-3">
+            <div className="animate-glow">
+              <ShinyHeart 
+                size={40} 
+                className="text-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+              />
+            </div>
+          </div>
+          <h1 className="text-2xl font-medium text-white mb-1">Thankly</h1>
+          <p className="text-sm text-white/60">Your daily gratitude journal</p>
+        </div>
+
+        {/* Name Input */}
+        {showNameInput && (
+          <div className="mb-4">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full py-2.5 px-4 rounded-lg
+                       bg-white/5 backdrop-blur-md
+                       text-white text-sm
+                       border border-white/10
+                       focus:outline-none focus:border-white/20
+                       placeholder:text-white/40"
+              autoFocus
+            />
+          </div>
+        )}
+
+        {/* Start Journal Button */}
+        <button
+          onClick={handleGuestLogin}
+          className="w-full py-2.5 rounded-lg
+                   bg-white/10 backdrop-blur-md
+                   text-white text-sm font-medium
+                   hover:bg-white/15 transition-all duration-300
+                   border border-white/10
+                   hover:scale-[1.02]
+                   active:scale-[0.98]"
+        >
+          {showNameInput ? 'Continue' : 'Start Journal'}
+        </button>
+      </div>
+    </div>
+  )
 }
 

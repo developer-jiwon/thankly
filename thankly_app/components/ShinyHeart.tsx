@@ -6,9 +6,10 @@ import { Heart } from 'lucide-react'
 interface ShinyHeartProps {
   size?: number
   className?: string
+  color?: string
 }
 
-export function ShinyHeart({ size = 24, className = '' }: ShinyHeartProps) {
+export function ShinyHeart({ size = 24, className = '', color = 'currentColor' }: ShinyHeartProps) {
   return (
     <div className="relative inline-block">
       <motion.div
@@ -38,7 +39,7 @@ export function ShinyHeart({ size = 24, className = '' }: ShinyHeartProps) {
         >
           <Heart
             size={size}
-            className="fill-[#8B2252]/10 stroke-[#8B2252]/20"
+            className="fill-white/10 stroke-white/20"
             strokeWidth={1}
           />
         </motion.div>
@@ -46,7 +47,7 @@ export function ShinyHeart({ size = 24, className = '' }: ShinyHeartProps) {
         {/* Main heart with glass effect */}
         <Heart
           size={size}
-          className={`fill-transparent stroke-[#8B2252]/30 backdrop-blur-sm ${className}`}
+          className={`fill-transparent stroke-white/40 backdrop-blur-sm ${className}`}
           strokeWidth={1.5}
         />
 
@@ -65,7 +66,7 @@ export function ShinyHeart({ size = 24, className = '' }: ShinyHeartProps) {
         >
           <Heart
             size={size}
-            className="fill-white/5 stroke-[#8B2252]/20"
+            className="fill-white/5 stroke-white/20"
             strokeWidth={1}
           />
         </motion.div>
