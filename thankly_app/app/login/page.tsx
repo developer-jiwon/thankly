@@ -10,6 +10,15 @@ export default function LoginPage() {
   const [name, setName] = useState('')
   const [showNameInput, setShowNameInput] = useState(false)
 
+  const generateUserId = (name: string) => {
+    // Clean the name: lowercase and remove special characters
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+    // Add a timestamp and random string for uniqueness
+    const timestamp = Date.now().toString(36)
+    const randomStr = Math.random().toString(36).substring(2, 5)
+    return `${cleanName}-${timestamp}-${randomStr}`
+  }
+
   const handleGuestLogin = () => {
     if (!showNameInput) {
       setShowNameInput(true)
@@ -20,14 +29,18 @@ export default function LoginPage() {
       return
     }
 
+    // Generate a unique ID using the name
+    const userId = generateUserId(name.trim())
+
     // Set guest mode in localStorage
     localStorage.setItem('isGuest', 'true')
     localStorage.setItem('userName', name.trim())
+    localStorage.setItem('isAuthenticated', 'true')
+    localStorage.setItem('userId', userId)
     
-    // Generate a temporary guest ID if needed
-    if (!localStorage.getItem('userId')) {
-      localStorage.setItem('userId', `guest_${Date.now()}`)
-    }
+    // Set cookies for middleware
+    document.cookie = 'isGuest=true; path=/'
+    document.cookie = 'isAuthenticated=true; path=/'
     
     // Redirect to main app
     router.push('/')
@@ -68,11 +81,16 @@ export default function LoginPage() {
                        focus:outline-none focus:border-white/20
                        placeholder:text-white/40"
               autoFocus
+              onKeyUp={(e) => {
+                if (e.key === 'Enter' && name.trim()) {
+                  handleGuestLogin()
+                }
+              }}
             />
           </div>
         )}
 
-        {/* Start Journal Button */}
+        {/* Start Journal/Continue Button */}
         <button
           onClick={handleGuestLogin}
           className="w-full py-2.5 rounded-lg

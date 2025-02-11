@@ -24,9 +24,36 @@ export function ShinyHeart({ size = 24, className = '', color = 'currentColor' }
         }}
         className="relative"
       >
-        {/* Glass effect background */}
+        {/* Enhanced glass effect background for better mobile visibility */}
         <motion.div
-          className="absolute inset-0 blur-xl"
+          className="absolute inset-0 blur-lg"
+          initial={{ opacity: 0.4 }}
+          animate={{
+            opacity: [0.4, 0.6, 0.4],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <Heart
+            size={size}
+            className="fill-white/20 stroke-white/40"
+            strokeWidth={2}
+          />
+        </motion.div>
+
+        {/* Main heart with enhanced contrast */}
+        <Heart
+          size={size}
+          className={`fill-transparent stroke-white/80 backdrop-blur-sm ${className}`}
+          strokeWidth={2}
+        />
+
+        {/* Enhanced shine effect */}
+        <motion.div
+          className="absolute inset-0"
           initial={{ opacity: 0.3 }}
           animate={{
             opacity: [0.3, 0.5, 0.3],
@@ -39,35 +66,8 @@ export function ShinyHeart({ size = 24, className = '', color = 'currentColor' }
         >
           <Heart
             size={size}
-            className="fill-white/10 stroke-white/20"
-            strokeWidth={1}
-          />
-        </motion.div>
-
-        {/* Main heart with glass effect */}
-        <Heart
-          size={size}
-          className={`fill-transparent stroke-white/40 backdrop-blur-sm ${className}`}
-          strokeWidth={1.5}
-        />
-
-        {/* Shine effect */}
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.2 }}
-          animate={{
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <Heart
-            size={size}
-            className="fill-white/5 stroke-white/20"
-            strokeWidth={1}
+            className="fill-white/10 stroke-white/40"
+            strokeWidth={1.5}
           />
         </motion.div>
       </motion.div>
