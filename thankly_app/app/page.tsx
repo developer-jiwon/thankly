@@ -47,41 +47,50 @@ function implementUserTypeChanges() {
 
   useEffect(() => {
     setMounted(true)
-    const userId = getUserId()
-    const storedAppreciations = localStorage.getItem(`appreciations_${userId}`)
-    if (storedAppreciations) {
-      setAppreciations(JSON.parse(storedAppreciations))
-    }
-    setUserType(getUserType())
     
-    if (!window.location.hash) {
-      window.location.hash = userId
-    }
-  }, [])
+    // First try to get userId from URL hash
+    const hashUserId = window.location.hash.slice(1)
+    // If no hash in URL, use stored userId
+    const storedUserId = getUserId()
+    const userId = hashUserId || storedUserId
 
-  useEffect(() => {
-    const userId = getUserId()
-    localStorage.setItem(`appreciations_${userId}`, JSON.stringify(appreciations))
-  }, [appreciations])
+    if (userId) {
+      // If we have a userId from either source, load the data
+      const storedAppreciations = localStorage.getItem(`appreciations_${userId}`)
+      if (storedAppreciations) {
+        setAppreciations(JSON.parse(storedAppreciations))
+      }
 
-  useEffect(() => {
-    const loadSharedData = () => {
-      const hash = window.location.hash.slice(1)
-      if (hash) {
-        const storedAppreciations = localStorage.getItem(`appreciations_${hash}`)
-        if (storedAppreciations) {
-          setAppreciations(JSON.parse(storedAppreciations))
-          // Store this as the current user's data
-          localStorage.setItem(`appreciations_${getUserId()}`, storedAppreciations)
-        }
+      // Update URL if needed
+      if (!hashUserId) {
+        window.location.hash = userId
+      }
+
+      // Ensure userId is stored in localStorage
+      if (!storedUserId) {
+        localStorage.setItem('userId', userId)
       }
     }
-
-    loadSharedData()
+    
+    setUserType(getUserType())
   }, [])
+
+  useEffect(() => {
+    const userId = window.location.hash.slice(1) || getUserId()
+    if (userId && appreciations.length > 0) {
+      localStorage.setItem(`appreciations_${userId}`, JSON.stringify(appreciations))
+    }
+  }, [appreciations])
 
   const addAppreciation = (e: React.FormEvent) => {
     e.preventDefault()
+    const userId = getUserId()
+    if (!userId) {
+      toast.error('Session expired. Please login again.')
+      router.push('/login')
+      return
+    }
+
     if (newAppreciation.trim() && selectedDate) {
       const limits = getFeatureLimits(userType)
       const todayAppreciations = appreciations.filter(a => a.date === formatDate(new Date())).length
