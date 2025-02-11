@@ -236,12 +236,12 @@ function implementUserTypeChanges() {
                                  ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                  ${selectedDate && formatDate(selectedDate) === formatDate(date) 
                                    ? 'bg-white/15 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
-                                   : 'hover:bg-white/5'}`}
+                                   : 'hover:bg-white/10 active:bg-white/15'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <span className="text-lg font-medium text-white group-hover:text-white/90">
+                      <span className="text-lg font-medium text-white group-hover:text-white">
                         {date.getDate()}
                       </span>
                       
@@ -288,7 +288,7 @@ function implementUserTypeChanges() {
                           value={newAppreciation}
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="What are you grateful for today?"
-                          className="w-full pl-6 p-3 text-base 
+                          className="w-full pl-6 p-3 text-base
                                     bg-surface/40 backdrop-blur-md text-white
                                     rounded-lg border border-white/10
                                     focus:outline-none focus:border-white/20 
@@ -304,7 +304,7 @@ function implementUserTypeChanges() {
                         .map(appreciation => (
                           <motion.div 
                             key={appreciation.id}
-                            className="p-4 rounded-xl 
+                            className="p-4 rounded-xl
                                      bg-white/5 backdrop-blur-md
                                      border border-white/10
                                      hover:bg-white/10 transition-all duration-300
