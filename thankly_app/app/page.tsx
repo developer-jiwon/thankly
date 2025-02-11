@@ -40,6 +40,8 @@ function implementUserTypeChanges() {
   const router = useRouter()
   const [showDeleteToast, setShowDeleteToast] = useState(false)
   const [newAppreciation, setNewAppreciation] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editText, setEditText] = useState('')
 
   useEffect(() => {
     setMounted(true)
@@ -175,6 +177,21 @@ function implementUserTypeChanges() {
         date: formatDate(selectedDate)
       }
       setAppreciations([newEntry, ...appreciations])
+    }
+  }
+
+  const handleEdit = (appreciation: Appreciation) => {
+    setEditingId(appreciation.id)
+    setEditText(appreciation.text)
+  }
+
+  const handleSaveEdit = (id: number) => {
+    if (editText.trim()) {
+      setAppreciations(appreciations.map(a => 
+        a.id === id ? { ...a, text: editText.trim() } : a
+      ))
+      setEditingId(null)
+      setEditText('')
     }
   }
 
@@ -314,14 +331,71 @@ function implementUserTypeChanges() {
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                             whileHover={{ scale: 1.02 }}
+                            onDoubleClick={() => handleEdit(appreciation)}
                           >
                             <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 
                                           bg-white/40 rounded-full opacity-0 group-hover:opacity-100
                                           transition-opacity duration-300" />
-                            <p className="text-sm flex-1 text-white/90 leading-relaxed
-                                        group-hover:text-white transition-colors duration-300">
-                              {appreciation.text}
-                            </p>
+                            {editingId === appreciation.id ? (
+                              <form onSubmit={(e) => {
+                                e.preventDefault();
+                                handleSaveEdit(appreciation.id);
+                              }}>
+                                <input
+                                  type="text"
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  className="w-full bg-transparent text-sm text-white 
+                                           focus:outline-none border-b border-white/20"
+                                  autoFocus
+                                  onBlur={() => handleSaveEdit(appreciation.id)}
+                                />
+                              </form>
+                            ) : (
+                              <p className="text-sm flex-1 text-white/90 leading-relaxed
+                                          group-hover:text-white transition-colors duration-300">
+                                {appreciation.text}
+                              </p>
+                            )}
+                            
+                            {/* Delete button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteAppreciation(appreciation.id);
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2
+                                       opacity-0 group-hover:opacity-100
+                                       transition-opacity duration-300
+                                       hover:scale-110 active:scale-95"
+                            >
+                              <div className="w-5 h-5 flex items-center justify-center
+                                           group/icon transition-all duration-300
+                                           hover:shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+                                <svg 
+                                  viewBox="0 0 24 24" 
+                                  className="w-4 h-4 text-white/40 group-hover/icon:text-white/60
+                                           transition-colors duration-300"
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  strokeWidth="2"
+                                >
+                                  <path 
+                                    d="M4 6h16l-1.58 14.22A2 2 0 0116.432 22H7.568a2 2 0 01-1.988-1.78L4 6z" 
+                                    className="group-hover/icon:stroke-white/80"
+                                  />
+                                  <path 
+                                    d="M7.345 3.147A2 2 0 019.154 2h5.692a2 2 0 011.81 1.147L18 6H6l1.345-2.853z" 
+                                    className="group-hover/icon:stroke-white/80"
+                                  />
+                                  <path 
+                                    d="M9 11v6M15 11v6" 
+                                    className="group-hover/icon:stroke-white/80"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                              </div>
+                            </button>
                           </motion.div>
                         ))}
                     </div>
