@@ -3,28 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
+  --foreground-rgb: 139, 34, 82;    /* Wine color */
   --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 245, 245, 245;
-  --scrollbar-color: #e0e0e0;
+  --background-end-rgb: 180, 216, 231; /* Serenity Blue */
+  --scrollbar-color: #B4D8E7;
 }
 
 .dark {
-  --foreground-rgb: 255, 255, 255;
+  --foreground-rgb: 180, 216, 231;  /* Serenity Blue */
   --background-start-rgb: 26, 26, 26;
-  --background-end-rgb: 26, 26, 26;
-  --scrollbar-color: #333333;
+  --background-end-rgb: 139, 34, 82; /* Wine color */
+  --scrollbar-color: #8B2252;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
+      to bottom right,
       transparent,
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom component styles */
+@layer components {
+  .card {
+    @apply bg-white/80 backdrop-blur-sm border border-primary-light 
+           rounded-3xl shadow-lg transition-all duration-300
+           hover:shadow-xl hover:scale-[1.02];
+  }
+
+  .input-field {
+    @apply w-full p-3 bg-transparent border-b-2 border-primary-light
+           focus:outline-none focus:border-primary
+           text-primary placeholder-primary/40
+           transition-all duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90
+           transition-all duration-300 shadow-lg shadow-primary/20
+           rounded-xl py-3 px-6;
+  }
+
+  .btn-secondary {
+    @apply border border-primary-light text-primary hover:bg-primary-light/10
+           transition-all duration-300 rounded-xl py-3 px-6;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-2 p-3 rounded-xl
+           text-primary hover:bg-primary-light/10
+           transition-all duration-200;
+  }
+
+  .dialog-content {
+    @apply bg-white/95 border-primary-light rounded-3xl
+           p-6 shadow-xl backdrop-blur-sm;
+  }
 }
 
 /* Scrollbar styles */
@@ -53,6 +91,48 @@ body {
 }
 
 * {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, 
+             color 0.2s ease, opacity 0.2s ease;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 3s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));
+    opacity: 0.9;
+  }
+  50% { 
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.95));
+    opacity: 1;
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
 }
 

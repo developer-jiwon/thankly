@@ -13,21 +13,23 @@ module.exports = {
         sans: ['Lora', 'serif'],
       },
       colors: {
-        trendy: {
-          black: '#1a1a1a',
-          gray: {
-            100: '#f5f5f5',
-            200: '#e5e5e5',
-            300: '#d4d4d4',
-            400: '#a3a3a3',
-            500: '#737373',
-            600: '#525252',
-            700: '#404040',
-            800: '#262626',
-            900: '#171717',
-          },
+        primary: {
+          DEFAULT: '#8B2252', // Wine
+          light: '#B4D8E7',   // Serenity Blue
+        },
+        background: {
+          light: '#FFFFFF',
+          dark: '#1a1a1a',
+        },
+        accent: {
+          DEFAULT: '#B4D8E7',
+          dark: '#8B2252',
         },
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-soft': 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
+      }
     },
   },
   plugins: [],
