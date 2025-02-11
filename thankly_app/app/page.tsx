@@ -231,17 +231,19 @@ function implementUserTypeChanges() {
                   {daysInMonth.map((date, index) => (
                     <motion.div 
                       key={date.toString()}
-                      className={`aspect-square p-2 rounded-md flex flex-col items-center
-                                 relative
-                                 ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
-                                 ${selectedDate && formatDate(selectedDate) === formatDate(date) 
-                                   ? 'bg-white/15 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
-                                   : 'hover:bg-white/10 active:bg-white/15'}`}
+                      className={`w-10 h-10 
+                                flex items-center justify-center 
+                                rounded-full
+                                relative
+                                ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
+                                ${selectedDate && formatDate(selectedDate) === formatDate(date) 
+                                  ? 'bg-white/15 shadow-[0_0_20px_rgba(255,255,255,0.15)]' 
+                                  : 'hover:bg-white/15 active:bg-white/20'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <span className="text-lg font-medium text-white group-hover:text-white">
+                      <span className="text-base font-medium text-white group-hover:text-white">
                         {date.getDate()}
                       </span>
                       
@@ -249,7 +251,7 @@ function implementUserTypeChanges() {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="absolute -top-1.5 right-0">
+                            <div className="absolute -top-1 -right-1">
                               <span className="text-[10px] font-medium text-white/80">
                                 {count}
                               </span>
