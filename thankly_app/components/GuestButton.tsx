@@ -52,10 +52,10 @@ export function GuestButton() {
       </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-white/90 backdrop-blur-sm dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle>Welcome to Thankly!</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">Welcome to Thankly!</DialogTitle>
+            <DialogDescription className="text-gray-700 dark:text-gray-300">
               Enter a name for your gratitude journal
             </DialogDescription>
           </DialogHeader>
@@ -66,7 +66,11 @@ export function GuestButton() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
-                className="w-full p-2 text-base border-b-2 border-gray-300 dark:border-[#444] focus:outline-none focus:border-gray-500 dark:focus:border-[#666] bg-transparent"
+                className="w-full p-2 text-base border-b-2 border-gray-300 dark:border-gray-600 
+                          focus:outline-none focus:border-gray-500 dark:focus:border-gray-400 
+                          bg-white/50 dark:bg-gray-900/50 
+                          text-gray-900 dark:text-gray-100
+                          placeholder-gray-500 dark:placeholder-gray-400"
                 style={{ fontSize: '16px' }}
                 onKeyUp={(e) => {
                   if (e.key === 'Enter') {
