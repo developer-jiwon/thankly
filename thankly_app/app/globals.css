@@ -3,27 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 139, 34, 82;    /* Wine color */
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 180, 216, 231; /* Serenity Blue */
-  --scrollbar-color: #B4D8E7;
-}
-
-.dark {
-  --foreground-rgb: 180, 216, 231;  /* Serenity Blue */
-  --background-start-rgb: 26, 26, 26;
-  --background-end-rgb: 139, 34, 82; /* Wine color */
-  --scrollbar-color: #8B2252;
+  /* No changes to root properties */
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom right,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-gradient-app min-h-screen text-white;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 

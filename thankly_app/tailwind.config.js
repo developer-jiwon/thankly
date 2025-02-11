@@ -17,10 +17,8 @@ module.exports = {
           DEFAULT: '#8B2252', // Wine
           light: '#B4D8E7',   // Serenity Blue
         },
-        background: {
-          light: '#FFFFFF',
-          dark: '#1a1a1a',
-        },
+        background: '#B4D8E7',  // Light blue background
+        surface: '#1a1a1a',     // Dark surface color
         accent: {
           DEFAULT: '#B4D8E7',
           dark: '#8B2252',
@@ -29,6 +27,7 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-soft': 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
+        'gradient-app': 'linear-gradient(to bottom right, #ffffff, #B4D8E7)',
       }
     },
   },

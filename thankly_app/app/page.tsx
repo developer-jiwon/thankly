@@ -191,14 +191,14 @@ function implementUserTypeChanges() {
       <div className="flex-1 pl-[40px]">
         <div className="h-screen flex flex-col lg:flex items-start lg:items-center lg:justify-center p-4 overflow-hidden">
           <div className="flex flex-col lg:flex-row w-full max-w-5xl 
-                        bg-black/90 backdrop-blur-md
+                        bg-surface/95 backdrop-blur-lg
                         rounded-xl shadow-xl
                         h-full lg:h-auto lg:min-h-[600px]">
             
             {/* Calendar Section */}
             <div className="w-full 
                           lg:w-[400px] p-8
-                          lg:border-r border-primary-light/10
+                          lg:border-r border-white/10
                           bg-transparent
                           flex-shrink-0 flex flex-col justify-center
                           lg:h-auto">
@@ -289,7 +289,7 @@ function implementUserTypeChanges() {
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="Add new appreciation..."
                           className="w-full pl-10 p-2 text-sm 
-                                    bg-black/40 backdrop-blur-md text-white
+                                    bg-surface/40 backdrop-blur-md text-white
                                     rounded-lg border border-white/10
                                     focus:outline-none focus:border-white/20 placeholder-white/50"
                           autoFocus
@@ -304,7 +304,7 @@ function implementUserTypeChanges() {
                           <motion.div 
                             key={appreciation.id}
                             className="p-3 rounded-lg 
-                                     bg-black/40 backdrop-blur-md
+                                     bg-surface/40 backdrop-blur-md
                                      flex items-center gap-2"
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
