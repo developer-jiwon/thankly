@@ -196,13 +196,14 @@ function implementUserTypeChanges() {
       
       <div className="flex-1 pl-[40px]">
         <div className="h-screen flex flex-col lg:flex items-start lg:items-center lg:justify-center p-4 overflow-hidden">
-          <div className="flex flex-col lg:flex-row w-full max-w-5xl bg-white/50 
-                        dark:bg-black/50 backdrop-blur-sm rounded-xl shadow-xl
+          <div className="flex flex-col lg:flex-row w-full max-w-5xl 
+                        bg-white/80 dark:bg-black/80 backdrop-blur-md
+                        rounded-xl shadow-xl
                         h-full lg:h-auto lg:min-h-[600px]">
             
             {/* Calendar Section */}
             <div className="w-full lg:w-[320px] p-6 lg:border-r border-primary-light/10
-                          bg-white/50 dark:bg-black/50 backdrop-blur-sm
+                          bg-transparent
                           flex-shrink-0 flex flex-col justify-center
                           lg:h-auto">
               <div className="max-w-sm mx-auto">
@@ -291,8 +292,9 @@ function implementUserTypeChanges() {
                           value={newAppreciation}
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="Add new appreciation..."
-                          className="w-full pl-10 p-2 text-sm bg-white/50 dark:bg-black/50
-                                    backdrop-blur-sm rounded-lg border border-primary/10
+                          className="w-full pl-10 p-2 text-sm 
+                                    bg-white/40 dark:bg-black/40 backdrop-blur-md
+                                    rounded-lg border border-primary/10
                                     focus:outline-none focus:border-primary/20"
                           autoFocus
                         />
@@ -305,8 +307,9 @@ function implementUserTypeChanges() {
                         .map(appreciation => (
                           <motion.div 
                             key={appreciation.id}
-                            className="p-3 rounded-lg bg-white/50 dark:bg-black/50
-                                     backdrop-blur-sm flex items-center gap-2"
+                            className="p-3 rounded-lg 
+                                     bg-white/40 dark:bg-black/40 backdrop-blur-md
+                                     flex items-center gap-2"
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                           >
