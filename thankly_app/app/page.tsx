@@ -256,8 +256,8 @@ function implementUserTypeChanges() {
                                 relative
                                 ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                 ${selectedDate && formatDate(selectedDate) === formatDate(date) 
-                                  ? 'bg-white/15 shadow-[0_0_20px_rgba(255,255,255,0.15)]' 
-                                  : 'hover:bg-white/15 active:bg-white/20'}`}
+                                  ? 'bg-[#A7D8DE]/70 shadow-[0_0_20px_rgba(167,216,222,0.4)]' 
+                                  : 'hover:bg-[#A7D8DE]/60 active:bg-[#A7D8DE]/70'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
                       whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.95 }}
@@ -270,7 +270,7 @@ function implementUserTypeChanges() {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="absolute -top-0.5 -right-0.5">
+                            <div className={`absolute -top-1.5 ${count < 10 ? 'right-0.5' : '-right-0.5'}`}>
                               <span className="text-[10px] font-medium text-white/80">
                                 {count}
                               </span>
@@ -310,10 +310,10 @@ function implementUserTypeChanges() {
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="What are you grateful for today?"
                           className="w-full pl-6 p-3 text-base
-                                    bg-surface/40 backdrop-blur-md text-white
-                                    rounded-lg border border-white/10
-                                    focus:outline-none focus:border-white/20 
-                                    placeholder-white/40 placeholder:text-sm"
+                                   bg-surface/40 backdrop-blur-md text-white
+                                   rounded-lg border border-white/10
+                                   focus:outline-none focus:border-white/20 
+                                   placeholder-white/40 placeholder:text-sm"
                           autoFocus
                         />
                       </div>
@@ -322,8 +322,8 @@ function implementUserTypeChanges() {
                     <div className="space-y-3">
                       {appreciations
                         .filter(a => a.date === formatDate(selectedDate))
-                        .map(appreciation => (
-                          <motion.div 
+                        .map((appreciation, index) => (
+                          <motion.div
                             key={appreciation.id}
                             className="p-4 rounded-xl
                                      bg-white/5 backdrop-blur-md
@@ -359,7 +359,6 @@ function implementUserTypeChanges() {
                                 {appreciation.text}
                               </p>
                             )}
-                            
                             {/* Delete button */}
                             <button
                               onClick={(e) => {

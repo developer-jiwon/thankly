@@ -24,12 +24,19 @@ export function ShinyHeart({ size = 24, className = '', color = 'currentColor' }
         }}
         className="relative"
       >
-        {/* Enhanced glass effect background for better mobile visibility */}
+        {/* Base heart with solid fill for better visibility */}
+        <Heart
+          size={size}
+          className="absolute inset-0 fill-white/5 stroke-white"
+          strokeWidth={2}
+        />
+
+        {/* Glowing overlay */}
         <motion.div
-          className="absolute inset-0 blur-lg"
-          initial={{ opacity: 0.4 }}
+          className="absolute inset-0 filter blur-[2px]"
+          initial={{ opacity: 0.5 }}
           animate={{
-            opacity: [0.4, 0.6, 0.4],
+            opacity: [0.5, 0.8, 0.5],
           }}
           transition={{
             duration: 3,
@@ -39,37 +46,17 @@ export function ShinyHeart({ size = 24, className = '', color = 'currentColor' }
         >
           <Heart
             size={size}
-            className="fill-white/20 stroke-white/40"
+            className="fill-white/20 stroke-white"
             strokeWidth={2}
           />
         </motion.div>
 
-        {/* Main heart with enhanced contrast */}
+        {/* Main visible heart */}
         <Heart
           size={size}
-          className={`fill-transparent stroke-white/80 backdrop-blur-sm ${className}`}
-          strokeWidth={2}
+          className={`relative z-10 fill-transparent stroke-white ${className}`}
+          strokeWidth={2.5}
         />
-
-        {/* Enhanced shine effect */}
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0.3 }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <Heart
-            size={size}
-            className="fill-white/10 stroke-white/40"
-            strokeWidth={1.5}
-          />
-        </motion.div>
       </motion.div>
     </div>
   )

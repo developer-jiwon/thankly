@@ -48,7 +48,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4
-                   bg-gradient-app">
+                   bg-gradient-app touch-manipulation">
       <div className="w-full max-w-sm 
                     bg-surface/95 backdrop-blur-lg
                     rounded-xl shadow-xl p-6">
@@ -71,15 +71,17 @@ export default function LoginPage() {
           <div className="mb-4">
             <input
               type="text"
+              inputMode="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
               className="w-full py-2.5 px-4 rounded-lg
                        bg-white/5 backdrop-blur-md
-                       text-white text-sm
+                       text-white text-[16px]
                        border border-white/10
                        focus:outline-none focus:border-white/20
-                       placeholder:text-white/40"
+                       placeholder:text-white/40
+                       touch-manipulation"
               autoFocus
               onKeyUp={(e) => {
                 if (e.key === 'Enter' && name.trim()) {
