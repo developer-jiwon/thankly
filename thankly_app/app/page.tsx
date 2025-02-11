@@ -200,26 +200,30 @@ function implementUserTypeChanges() {
                           lg:w-[500px] p-10
                           lg:border-r border-white/10
                           bg-transparent
-                          flex-shrink-0 flex flex-col justify-center
+                          flex-shrink-0 flex flex-col justify-center relative
                           lg:h-auto">
               <div className="max-w-sm mx-auto">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-10 px-2">
                   <h2 className="text-xl font-medium text-white">
                     {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </h2>
-                  <div className="flex gap-4">
-                    <button onClick={() => changeMonth(-1)}>
+                  <div className="flex gap-6">
+                    <button onClick={() => changeMonth(-1)}
+                              className="hover:bg-white/5 p-2 rounded-full transition-all duration-200"
+                    >
                       <ChevronLeft size={24} className="text-white" />
                     </button>
-                    <button onClick={() => changeMonth(1)}>
+                    <button onClick={() => changeMonth(1)}
+                              className="hover:bg-white/5 p-2 rounded-full transition-all duration-200"
+                    >
                       <ChevronRight size={24} className="text-white" />
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-3 text-base mb-auto">
+                <div className="grid grid-cols-7 gap-4 text-base mb-auto">
                   {WEEKDAYS.map(day => (
-                    <div key={day} className="text-center text-sm text-white/60">
+                    <div key={day} className="text-center text-xs font-medium tracking-wider uppercase text-white/50">
                       {day.slice(0,1)}
                     </div>
                   ))}
@@ -227,19 +231,26 @@ function implementUserTypeChanges() {
                   {daysInMonth.map((date, index) => (
                     <motion.div 
                       key={date.toString()}
-                      className={`aspect-square p-2 rounded-md flex flex-col items-center
+                      className={`aspect-square p-2 rounded-md flex flex-col items-center justify-center
+                                 relative group transition-all duration-200
                                  ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                  ${selectedDate && formatDate(selectedDate) === formatDate(date) 
-                                   ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                                   ? 'bg-white/15 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
+                                   : 'hover:bg-white/5 hover:shadow-[0_0_10px_rgba(255,255,255,0.05)]'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      <span className="text-lg font-medium text-white">{date.getDate()}</span>
+                      <span className="text-lg font-medium text-white group-hover:text-white/90">
+                        {date.getDate()}
+                      </span>
                       {(() => {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className="mt-1">
-                              <span className="text-sm font-medium text-white/80">
+                            <div className="absolute -top-1 -right-1">
+                              <span className="text-xs font-medium bg-white/10 text-white/90 
+                                             px-1.5 py-0.5 rounded-full backdrop-blur-sm">
                                 {count}
                               </span>
                             </div>
