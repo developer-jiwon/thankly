@@ -197,29 +197,29 @@ function implementUserTypeChanges() {
             
             {/* Calendar Section */}
             <div className="w-full 
-                          lg:w-[400px] p-8
+                          lg:w-[500px] p-10
                           lg:border-r border-white/10
                           bg-transparent
                           flex-shrink-0 flex flex-col justify-center
                           lg:h-auto">
               <div className="max-w-sm mx-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-base font-medium text-white">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-xl font-medium text-white">
                     {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </h2>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <button onClick={() => changeMonth(-1)}>
-                      <ChevronLeft size={20} className="text-white" />
+                      <ChevronLeft size={24} className="text-white" />
                     </button>
                     <button onClick={() => changeMonth(1)}>
-                      <ChevronRight size={20} className="text-white" />
+                      <ChevronRight size={24} className="text-white" />
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2 text-sm mb-auto">
+                <div className="grid grid-cols-7 gap-3 text-base mb-auto">
                   {WEEKDAYS.map(day => (
-                    <div key={day} className="text-center text-xs text-white/60">
+                    <div key={day} className="text-center text-sm text-white/60">
                       {day.slice(0,1)}
                     </div>
                   ))}
@@ -227,19 +227,19 @@ function implementUserTypeChanges() {
                   {daysInMonth.map((date, index) => (
                     <motion.div 
                       key={date.toString()}
-                      className={`aspect-square p-1 rounded-sm flex flex-col items-center
+                      className={`aspect-square p-2 rounded-md flex flex-col items-center
                                  ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                  ${selectedDate && formatDate(selectedDate) === formatDate(date) 
                                    ? 'bg-white/10' : 'hover:bg-white/5'}`}
                       onClick={() => !isPastDate(date) && handleDateClick(date)}
                     >
-                      <span className="text-sm font-medium text-white">{date.getDate()}</span>
+                      <span className="text-lg font-medium text-white">{date.getDate()}</span>
                       {(() => {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
                             <div className="mt-1">
-                              <span className="text-xs font-medium text-white/80">
+                              <span className="text-sm font-medium text-white/80">
                                 {count}
                               </span>
                             </div>
