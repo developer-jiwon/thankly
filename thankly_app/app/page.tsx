@@ -38,7 +38,6 @@ function implementUserTypeChanges() {
   const [userType, setUserType] = useState<'guest' | 'registered' | 'unauthenticated'>('unauthenticated')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const router = useRouter()
-  const [showDeleteToast, setShowDeleteToast] = useState(false)
   const [newAppreciation, setNewAppreciation] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
@@ -82,7 +81,6 @@ function implementUserTypeChanges() {
 
   const deleteAppreciation = (id: number) => {
     setAppreciations(appreciations.filter(a => a.id !== id))
-    setShowDeleteToast(true)
   }
 
   const daysInMonth = getDaysInMonth(currentMonth.getFullYear(), currentMonth.getMonth())
@@ -219,7 +217,7 @@ function implementUserTypeChanges() {
                           bg-transparent
                           flex-shrink-0 flex flex-col justify-center relative
                           lg:h-auto">
-              <div className="max-w-sm mx-auto">
+              <div className="max-w-sm mx-auto relative">
                 <div className="flex items-center justify-between mb-10 px-2">
                   <h2 className="text-xl font-medium text-white">
                     {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
@@ -411,11 +409,6 @@ function implementUserTypeChanges() {
       <ToastContainer 
         position="bottom-right"
         className="text-sm sm:text-base"
-      />
-      <Toast 
-        message="Appreciation deleted"
-        isVisible={showDeleteToast}
-        onClose={() => setShowDeleteToast(false)}
       />
     </div>
   )
