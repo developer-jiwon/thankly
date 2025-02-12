@@ -224,18 +224,18 @@ function implementUserTypeChanges() {
                           flex-shrink-0 flex flex-col justify-center relative
                           lg:h-auto">
               <div className="max-w-sm mx-auto relative">
-                <div className="mb-6 px-2">
+                <div className="mb-6">
                   <button
                     onClick={handleCopyUserId}
                     className="flex items-center gap-2 px-3 py-1.5 
                              bg-white/5 hover:bg-white/10
                              rounded-full transition-all duration-300
-                             group"
+                             group w-fit"
                   >
-                    <p className="text-xs text-white/40 font-light">
+                    <p className="text-xs text-white/40 font-light whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[200px]">
                       User ID: {window.location.hash}
                     </p>
-                    <span className="text-xs text-white/40">
+                    <span className="text-xs text-white/40 flex-shrink-0">
                       {copied ? (
                         "Copied!"
                       ) : (
