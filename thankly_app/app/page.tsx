@@ -45,11 +45,9 @@ function implementUserTypeChanges() {
   useEffect(() => {
     setMounted(true)
     
-    // Try to get userId from URL hash first
     const hashUserId = window.location.hash.slice(1)
     const storedUserId = getUserId()
 
-    // If URL has userId, use it
     if (hashUserId) {
       // Store the hashUserId in localStorage
       localStorage.setItem('userId', hashUserId)
@@ -60,22 +58,14 @@ function implementUserTypeChanges() {
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-    } 
-    // If no hash but has stored userId
-    else if (storedUserId) {
-      // Update URL with stored userId
-      if (typeof window !== 'undefined') {
-        window.location.replace(`/#${storedUserId}`)
-      }
-      
-      // Load appreciations for stored userId
+    } else if (storedUserId) {
+      // If no hash but has stored userId, load data without changing URL
       const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-    }
-    // No userId anywhere, redirect to login
-    else {
+    } else {
+      // No userId anywhere, redirect to login
       router.push('/login')
     }
     

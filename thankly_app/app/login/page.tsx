@@ -3,12 +3,21 @@
 import { LoginForm } from '@/components/LoginForm'
 import { ShinyHeart } from '@/components/ShinyHeart'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [showNameInput, setShowNameInput] = useState(false)
+
+  useEffect(() => {
+    // Check if there's a userId in the hash
+    const hashUserId = window.location.hash.slice(1)
+    if (hashUserId) {
+      // If there's a hash userId, redirect to main page with the hash
+      window.location.replace(`/#${hashUserId}`)
+    }
+  }, [])
 
   const generateUserId = (name: string) => {
     // Clean the name: lowercase and remove special characters
