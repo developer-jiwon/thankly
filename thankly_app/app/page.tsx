@@ -41,6 +41,7 @@ function implementUserTypeChanges() {
   const [newAppreciation, setNewAppreciation] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -184,6 +185,13 @@ function implementUserTypeChanges() {
     }
   }
 
+  const handleCopyUserId = () => {
+    const userId = window.location.hash
+    navigator.clipboard.writeText(userId)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   if (!mounted) return null
   if (userType === 'unauthenticated') {
     router.push('/login')
@@ -209,6 +217,35 @@ function implementUserTypeChanges() {
                           flex-shrink-0 flex flex-col justify-center relative
                           lg:h-auto">
               <div className="max-w-sm mx-auto relative">
+                <div className="mb-6 px-2">
+                  <button
+                    onClick={handleCopyUserId}
+                    className="flex items-center gap-2 px-3 py-1.5 
+                             bg-white/5 hover:bg-white/10
+                             rounded-full transition-all duration-300
+                             group"
+                  >
+                    <p className="text-xs text-white/40 font-light">
+                      User ID: {window.location.hash}
+                    </p>
+                    <span className="text-xs text-white/40">
+                      {copied ? (
+                        "Copied!"
+                      ) : (
+                        <svg 
+                          viewBox="0 0 24 24" 
+                          className="w-3.5 h-3.5 opacity-40 group-hover:opacity-60"
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2"
+                        >
+                          <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between mb-10 px-2">
                   <h2 className="text-xl font-medium text-white">
                     {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
