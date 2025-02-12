@@ -298,11 +298,12 @@ function implementUserTypeChanges() {
                           value={newAppreciation}
                           onChange={(e) => setNewAppreciation(e.target.value)}
                           placeholder="What are you grateful for today?"
-                          className="w-full pl-6 p-3 text-base
+                          className="w-full pl-6 p-3 text-[16px]
                                    bg-surface/40 backdrop-blur-md text-white
                                    rounded-lg border border-white/10
                                    focus:outline-none focus:border-white/20 
-                                   placeholder-white/40 placeholder:text-sm"
+                                   placeholder-white/40 placeholder:text-sm
+                                   touch-manipulation"
                           autoFocus
                         />
                       </div>
@@ -336,8 +337,9 @@ function implementUserTypeChanges() {
                                   type="text"
                                   value={editText}
                                   onChange={(e) => setEditText(e.target.value)}
-                                  className="w-full bg-transparent text-sm text-white 
-                                           focus:outline-none border-b border-white/20"
+                                  className="w-full bg-transparent text-[16px] text-white 
+                                           focus:outline-none border-b border-white/20
+                                           touch-manipulation"
                                   autoFocus
                                   onBlur={() => handleSaveEdit(appreciation.id)}
                                 />
