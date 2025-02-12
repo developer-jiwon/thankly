@@ -91,10 +91,17 @@ function implementUserTypeChanges() {
   };
 
   const handleLogout = () => {
+    // Clear all storage
     localStorage.removeItem('isAuthenticated')
     localStorage.removeItem('isGuest')
-    setUserType('unauthenticated')
-    router.push('/login')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userName')
+    
+    // Clear URL hash
+    window.location.hash = ''
+    
+    // Redirect to login
+    window.location.replace('/login')
   }
 
   const handleExportData = () => {

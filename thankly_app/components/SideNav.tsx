@@ -51,14 +51,28 @@ export function SideNav({ onNavItemClick, onLogout }: {
           <Users size={14} className={iconClass} />
         </motion.button>
 
-        <motion.button
-          onClick={() => onNavItemClick('Logout')}
-          className="p-1 text-white group"
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.95 }}
+        <button
+          onClick={onLogout}
+          className="w-10 h-10 flex items-center justify-center
+                   hover:bg-white/5 rounded-lg
+                   transition-all duration-300
+                   group"
         >
-          <ArrowLeftRight size={14} className={iconClass} />
-        </motion.button>
+          <svg 
+            viewBox="0 0 24 24" 
+            className="w-5 h-5 text-white/40 group-hover:text-white/60
+                     transition-colors duration-300"
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+          >
+            <path 
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
     </motion.div>
   )
