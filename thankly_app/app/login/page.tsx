@@ -29,21 +29,23 @@ export default function LoginPage() {
       return
     }
 
-    // Generate a unique ID using the name
     const userId = generateUserId(name.trim())
-
-    // Set guest mode in localStorage
     localStorage.setItem('isGuest', 'true')
     localStorage.setItem('userName', name.trim())
     localStorage.setItem('isAuthenticated', 'true')
     localStorage.setItem('userId', userId)
     
-    // Set cookies for middleware
     document.cookie = 'isGuest=true; path=/'
     document.cookie = 'isAuthenticated=true; path=/'
     
-    // Redirect to main app
-    router.push('/')
+    // Add userId to URL when redirecting
+    router.push(`/#${userId}`)
+  }
+
+  const handleLogin = (name: string) => {
+    const userId = generateUserId(name)
+    localStorage.setItem('userId', userId)
+    router.push('/')  // Don't add hash to URL
   }
 
   return (

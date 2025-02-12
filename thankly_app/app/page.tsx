@@ -45,35 +45,39 @@ function implementUserTypeChanges() {
   useEffect(() => {
     setMounted(true)
     
-    // First try to get userId from URL hash
+    // Try to get userId from URL hash first
     const hashUserId = window.location.hash.slice(1)
-    // If no hash in URL, use stored userId
     const storedUserId = getUserId()
-    const userId = hashUserId || storedUserId
 
-    if (userId) {
-      // If we have a userId from either source, load the data
-      const storedAppreciations = localStorage.getItem(`appreciations_${userId}`)
+    // If URL has userId but it's different from stored one, update storage
+    if (hashUserId) {
+      if (hashUserId !== storedUserId) {
+        localStorage.setItem('userId', hashUserId)
+        localStorage.setItem('isAuthenticated', 'true')
+      }
+      const storedAppreciations = localStorage.getItem(`appreciations_${hashUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-
-      // Update URL if needed
-      if (!hashUserId) {
-        window.location.hash = userId
+    } 
+    // If no hash but has stored userId, update URL
+    else if (storedUserId) {
+      window.location.hash = storedUserId
+      const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
+      if (storedAppreciations) {
+        setAppreciations(JSON.parse(storedAppreciations))
       }
-
-      // Ensure userId is stored in localStorage
-      if (!storedUserId) {
-        localStorage.setItem('userId', userId)
-      }
+    }
+    // No userId anywhere, redirect to login
+    else {
+      router.push('/login')
     }
     
     setUserType(getUserType())
   }, [])
 
   useEffect(() => {
-    const userId = window.location.hash.slice(1) || getUserId()
+    const userId = getUserId()
     if (userId && appreciations.length > 0) {
       localStorage.setItem(`appreciations_${userId}`, JSON.stringify(appreciations))
     }
