@@ -11,14 +11,12 @@ export default function LoginPage() {
   const [showNameInput, setShowNameInput] = useState(false)
 
   useEffect(() => {
-    // If there's a hash and it's a valid userId format, go directly to main page
+    // If there's a hash in URL, it means someone is trying to access a shared link
     const hashUserId = window.location.hash.slice(1)
     if (hashUserId && hashUserId.includes('-')) {
-      // Set the required auth data before redirecting
       localStorage.setItem('userId', hashUserId)
       localStorage.setItem('isAuthenticated', 'true')
-      // Redirect to main page keeping the hash
-      window.location.href = `/${window.location.hash}`
+      window.location.href = '/' // Go to main page, keeping the hash
     }
   }, [])
 
@@ -37,9 +35,7 @@ export default function LoginPage() {
       return
     }
     
-    if (!name.trim()) {
-      return
-    }
+    if (!name.trim()) return
 
     const userId = generateUserId(name.trim())
     
@@ -53,10 +49,8 @@ export default function LoginPage() {
     document.cookie = 'isGuest=true; path=/'
     document.cookie = 'isAuthenticated=true; path=/'
     
-    // Use replace instead of push for better mobile handling
-    if (typeof window !== 'undefined') {
-      window.location.replace(`/#${userId}`)
-    }
+    // Add userId to URL and navigate
+    window.location.href = `/#${userId}`
   }
 
   const handleLogin = (name: string) => {
