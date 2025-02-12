@@ -11,12 +11,10 @@ export default function LoginPage() {
   const [showNameInput, setShowNameInput] = useState(false)
 
   useEffect(() => {
-    // If URL has a user ID hash, go directly to main page
+    // If URL already has a hash, go to main page
     const hashUserId = window.location.hash.slice(1)
     if (hashUserId && hashUserId.includes('-')) {
-      localStorage.setItem('userId', hashUserId)
-      localStorage.setItem('isAuthenticated', 'true')
-      window.location.replace('/') // Use replace to prevent back button issues
+      window.location.replace('/')
     }
   }, [])
 
@@ -44,7 +42,7 @@ export default function LoginPage() {
     localStorage.setItem('isAuthenticated', 'true')
     localStorage.setItem('userId', userId)
     
-    // Redirect with the hash
+    // Use window.location.replace for consistent behavior across platforms
     window.location.replace(`/#${userId}`)
   }
 

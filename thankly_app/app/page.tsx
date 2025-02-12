@@ -46,9 +46,8 @@ function implementUserTypeChanges() {
     setMounted(true)
     
     const hashUserId = window.location.hash.slice(1)
-    const storedUserId = getUserId()
-
-    // If URL has a hash, use that
+    
+    // Only allow access with valid hash
     if (hashUserId && hashUserId.includes('-')) {
       localStorage.setItem('userId', hashUserId)
       localStorage.setItem('isAuthenticated', 'true')
@@ -58,21 +57,10 @@ function implementUserTypeChanges() {
         setAppreciations(JSON.parse(storedAppreciations))
       }
       setUserType('guest')
-      return
+    } else {
+      // No hash in URL = go to login
+      window.location.replace('/login')
     }
-
-    // If has stored userId but no hash
-    if (storedUserId) {
-      const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
-      if (storedAppreciations) {
-        setAppreciations(JSON.parse(storedAppreciations))
-      }
-      setUserType('guest')
-      return
-    }
-
-    // No userId at all, go to login
-    router.replace('/login')
   }, [])
 
   useEffect(() => {
