@@ -30,16 +30,21 @@ export default function LoginPage() {
     }
 
     const userId = generateUserId(name.trim())
+    
+    // Set all required data in localStorage
     localStorage.setItem('isGuest', 'true')
     localStorage.setItem('userName', name.trim())
     localStorage.setItem('isAuthenticated', 'true')
     localStorage.setItem('userId', userId)
     
+    // Set cookies
     document.cookie = 'isGuest=true; path=/'
     document.cookie = 'isAuthenticated=true; path=/'
     
-    // Add userId to URL when redirecting
-    router.push(`/#${userId}`)
+    // Use replace instead of push for better mobile handling
+    if (typeof window !== 'undefined') {
+      window.location.replace(`/#${userId}`)
+    }
   }
 
   const handleLogin = (name: string) => {

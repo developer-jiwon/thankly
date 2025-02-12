@@ -49,20 +49,26 @@ function implementUserTypeChanges() {
     const hashUserId = window.location.hash.slice(1)
     const storedUserId = getUserId()
 
-    // If URL has userId but it's different from stored one, update storage
+    // If URL has userId, use it
     if (hashUserId) {
-      if (hashUserId !== storedUserId) {
-        localStorage.setItem('userId', hashUserId)
-        localStorage.setItem('isAuthenticated', 'true')
-      }
+      // Store the hashUserId in localStorage
+      localStorage.setItem('userId', hashUserId)
+      localStorage.setItem('isAuthenticated', 'true')
+      
+      // Load appreciations for this userId
       const storedAppreciations = localStorage.getItem(`appreciations_${hashUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
     } 
-    // If no hash but has stored userId, update URL
+    // If no hash but has stored userId
     else if (storedUserId) {
-      window.location.hash = storedUserId
+      // Update URL with stored userId
+      if (typeof window !== 'undefined') {
+        window.location.replace(`/#${storedUserId}`)
+      }
+      
+      // Load appreciations for stored userId
       const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
