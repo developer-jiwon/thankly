@@ -45,11 +45,10 @@ function implementUserTypeChanges() {
   useEffect(() => {
     setMounted(true)
     
-    // Check for userId in URL hash first
     const hashUserId = window.location.hash.slice(1)
     const storedUserId = getUserId()
 
-    // Case 1: Has hash in URL (shared link)
+    // If URL has a hash, use that
     if (hashUserId && hashUserId.includes('-')) {
       localStorage.setItem('userId', hashUserId)
       localStorage.setItem('isAuthenticated', 'true')
@@ -58,25 +57,23 @@ function implementUserTypeChanges() {
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
+      setUserType('guest')
       return
     }
 
-    // Case 2: Has stored userId but no hash
+    // If has stored userId but no hash
     if (storedUserId) {
       const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-      // Add hash to URL for sharing
-      if (!window.location.hash) {
-        window.location.hash = storedUserId
-      }
+      setUserType('guest')
       return
     }
 
-    // Case 3: No userId anywhere, go to login
-    router.push('/login')
-  }, [router])
+    // No userId at all, go to login
+    router.replace('/login')
+  }, [])
 
   useEffect(() => {
     const userId = getUserId()
