@@ -11,11 +11,14 @@ export default function LoginPage() {
   const [showNameInput, setShowNameInput] = useState(false)
 
   useEffect(() => {
-    // Check if there's a userId in the hash
+    // If there's a hash and it's a valid userId format, go directly to main page
     const hashUserId = window.location.hash.slice(1)
-    if (hashUserId) {
-      // If there's a hash userId, redirect to main page with the hash
-      window.location.replace(`/#${hashUserId}`)
+    if (hashUserId && hashUserId.includes('-')) {
+      // Set the required auth data before redirecting
+      localStorage.setItem('userId', hashUserId)
+      localStorage.setItem('isAuthenticated', 'true')
+      // Redirect to main page keeping the hash
+      window.location.href = `/${window.location.hash}`
     }
   }, [])
 

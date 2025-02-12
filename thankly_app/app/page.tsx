@@ -48,24 +48,25 @@ function implementUserTypeChanges() {
     const hashUserId = window.location.hash.slice(1)
     const storedUserId = getUserId()
 
-    if (hashUserId) {
-      // Store the hashUserId in localStorage
+    // If has hash URL, prioritize it
+    if (hashUserId && hashUserId.includes('-')) {
       localStorage.setItem('userId', hashUserId)
       localStorage.setItem('isAuthenticated', 'true')
       
-      // Load appreciations for this userId
       const storedAppreciations = localStorage.getItem(`appreciations_${hashUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-    } else if (storedUserId) {
-      // If no hash but has stored userId, load data without changing URL
+    } 
+    // If no hash but has stored userId
+    else if (storedUserId) {
       const storedAppreciations = localStorage.getItem(`appreciations_${storedUserId}`)
       if (storedAppreciations) {
         setAppreciations(JSON.parse(storedAppreciations))
       }
-    } else {
-      // No userId anywhere, redirect to login
+    }
+    // No valid userId anywhere, then redirect to login
+    else {
       router.push('/login')
     }
     
