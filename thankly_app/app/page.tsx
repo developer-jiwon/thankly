@@ -199,6 +199,15 @@ function implementUserTypeChanges() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  useEffect(() => {
+    // Check for userId in hash on both mobile and desktop
+    const hashUserId = window.location.hash.slice(1)
+    if (!hashUserId) {
+      // If no userId in hash, redirect to login
+      window.location.href = '/login'
+    }
+  }, [])
+
   if (!mounted) return null
   if (userType === 'unauthenticated') {
     router.push('/login')

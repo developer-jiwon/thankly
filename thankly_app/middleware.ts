@@ -11,7 +11,8 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/login') || 
     request.nextUrl.pathname.startsWith('/signup') ||
     request.nextUrl.pathname.startsWith('/api/auth') ||
-    request.nextUrl.pathname.startsWith('/_next')
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname === '/' // Allow access to root path since we're using hash routing
   ) {
     return NextResponse.next()
   }

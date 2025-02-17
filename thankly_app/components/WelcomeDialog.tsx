@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Copy, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface WelcomeDialogProps {
   isOpen: boolean
@@ -22,25 +23,35 @@ interface WelcomeDialogProps {
 
 export function WelcomeDialog({ isOpen, onOpenChange, name, setName, onSubmit }: WelcomeDialogProps) {
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const [generatedUrl, setGeneratedUrl] = useState('')
+  const [userId, setUserId] = useState('')
+  const router = useRouter()
   
-  const handleSubmit = async () => {
-    setShowConfirmation(true)
-    const url = onSubmit()
-    if (url) {
-      setGeneratedUrl(url)
+  const handleStartJournal = () => {
+    try {
+      // Close keyboard on mobile if it's open
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+
+      // Small delay to ensure keyboard is closed
+      setTimeout(() => {
+        // Navigate to calendar page with userId in hash
+        window.location.href = `/#${userId}`
+        onOpenChange(false)
+      }, 100);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback navigation
+      router.push(`/#${userId}`);
     }
   }
 
-  const handleStartJournal = () => {
-    // First copy the URL
-    navigator.clipboard.writeText(generatedUrl)
-    
-    // Wait a brief moment to ensure copying is done
-    setTimeout(() => {
-      // Then redirect
-      window.location.href = generatedUrl
-    }, 100)
+  const handleSubmit = async () => {
+    setShowConfirmation(true)
+    const newUserId = onSubmit()
+    if (newUserId) {
+      setUserId(newUserId)
+    }
   }
 
   return (
@@ -75,14 +86,23 @@ export function WelcomeDialog({ isOpen, onOpenChange, name, setName, onSubmit }:
                               bg-white
                               text-[#8B2252]
                               placeholder-[#8B2252]/50
-                              rounded-lg"
-                    style={{ fontSize: '16px' }}
+                              rounded-lg
+                              appearance-none"
+                    style={{ 
+                      fontSize: '16px',
+                      WebkitAppearance: 'none',
+                      maxWidth: '100%'
+                    }}
                     onKeyUp={(e) => {
                       if (e.key === 'Enter' && name.trim()) {
-                        handleSubmit()
+                        e.currentTarget.blur();
+                        handleSubmit();
                       }
                     }}
                     enterKeyHint="done"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                     autoFocus
                   />
                 </div>

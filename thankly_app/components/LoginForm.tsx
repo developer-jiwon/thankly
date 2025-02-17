@@ -13,16 +13,18 @@ import {
 } from "@/components/ui/dialog"
 import { setUserId } from '@/utils/userIdentifier'
 import { WelcomeDialog } from './WelcomeDialog'
+import { useRouter } from 'next/navigation'
 
 export function LoginForm() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [name, setName] = useState('')
+  const router = useRouter()
 
   const handleJournalStart = () => {
     setIsDialogOpen(true)
   }
 
-  const handleNameSubmit = (): string | undefined => {
+  const handleNameSubmit = () => {
     if (name.trim()) {
       const userId = setUserId(name.trim())
       
@@ -32,10 +34,9 @@ export function LoginForm() {
       document.cookie = 'isGuest=true; path=/'
       document.cookie = 'isAuthenticated=true; path=/'
       
-      // Return the URL that will be used
-      return `${window.location.origin}/${userId ? `#${userId}` : ''}`
+      // Return the userId for the WelcomeDialog to use
+      return userId
     }
-    return undefined
   }
 
   return (
