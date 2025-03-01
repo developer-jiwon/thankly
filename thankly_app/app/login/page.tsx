@@ -8,7 +8,10 @@ import { useState, useEffect } from 'react'
 export default function LoginPage() {
   const router = useRouter()
   const [name, setName] = useState('')
+  const [userId, setUserId] = useState('')
   const [showNameInput, setShowNameInput] = useState(false)
+  const [showIdInput, setShowIdInput] = useState(false)
+  const [loginMode, setLoginMode] = useState<'new' | 'existing'>('new')
 
   useEffect(() => {
     // If URL already has a hash, go to main page
@@ -28,28 +31,64 @@ export default function LoginPage() {
   }
 
   const handleGuestLogin = () => {
-    if (!showNameInput) {
-      setShowNameInput(true)
-      return
-    }
-    
-    if (!name.trim()) return
+    if (loginMode === 'new') {
+      if (!showNameInput) {
+        setShowNameInput(true)
+        setShowIdInput(false)
+        return
+      }
+      
+      if (!name.trim()) return
 
-    const userId = generateUserId(name.trim())
-    
-    localStorage.setItem('isGuest', 'true')
-    localStorage.setItem('userName', name.trim())
-    localStorage.setItem('isAuthenticated', 'true')
-    localStorage.setItem('userId', userId)
-    
-    // Use window.location.replace for consistent behavior across platforms
-    window.location.replace(`/#${userId}`)
+      const newUserId = generateUserId(name.trim())
+      
+      localStorage.setItem('isGuest', 'true')
+      localStorage.setItem('userName', name.trim())
+      localStorage.setItem('isAuthenticated', 'true')
+      localStorage.setItem('userId', newUserId)
+      
+      // This is a new user, so set this as their original ID
+      localStorage.setItem('originalUserId', newUserId)
+      
+      // Use window.location.replace for consistent behavior across platforms
+      window.location.replace(`/#${newUserId}`)
+    } else {
+      if (!showIdInput) {
+        setShowIdInput(true)
+        setShowNameInput(false)
+        return
+      }
+      
+      if (!userId.trim() || !userId.includes('-')) {
+        alert('Please enter a valid User ID')
+        return
+      }
+
+      localStorage.setItem('isGuest', 'true')
+      localStorage.setItem('isAuthenticated', 'true')
+      localStorage.setItem('userId', userId.trim())
+      
+      // Set a flag to indicate this is the user's own journal
+      localStorage.setItem('cameFromLogin', 'true')
+      
+      // Set this as the user's original ID
+      localStorage.setItem('originalUserId', userId.trim())
+      
+      // Use window.location.replace for consistent behavior across platforms
+      window.location.replace(`/#${userId.trim()}`)
+    }
   }
 
   const handleLogin = (name: string) => {
     const userId = generateUserId(name)
     localStorage.setItem('userId', userId)
     router.push('/')  // Don't add hash to URL
+  }
+
+  const toggleLoginMode = () => {
+    setLoginMode(loginMode === 'new' ? 'existing' : 'new')
+    setShowNameInput(false)
+    setShowIdInput(false)
   }
 
   return (
@@ -72,8 +111,32 @@ export default function LoginPage() {
           <p className="text-sm text-white/60">Your daily gratitude journal</p>
         </div>
 
-        {/* Name Input */}
-        {showNameInput && (
+        {/* Toggle between new and existing user */}
+        <div className="flex mb-4 bg-white/5 rounded-lg p-1">
+          <button
+            onClick={() => setLoginMode('new')}
+            className={`flex-1 py-2 text-sm rounded-md transition-all duration-300 ${
+              loginMode === 'new' 
+                ? 'bg-[#A7D8DE]/30 text-white' 
+                : 'text-white/60 hover:text-white/80'
+            }`}
+          >
+            New Journal
+          </button>
+          <button
+            onClick={() => setLoginMode('existing')}
+            className={`flex-1 py-2 text-sm rounded-md transition-all duration-300 ${
+              loginMode === 'existing' 
+                ? 'bg-[#A7D8DE]/30 text-white' 
+                : 'text-white/60 hover:text-white/80'
+            }`}
+          >
+            Existing Journal
+          </button>
+        </div>
+
+        {/* Name Input for new users */}
+        {showNameInput && loginMode === 'new' && (
           <div className="mb-4">
             <input
               type="text"
@@ -98,6 +161,35 @@ export default function LoginPage() {
           </div>
         )}
 
+        {/* User ID Input for existing users */}
+        {showIdInput && loginMode === 'existing' && (
+          <div className="mb-4">
+            <input
+              type="text"
+              inputMode="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="Enter your User ID"
+              className="w-full py-2.5 px-4 rounded-lg
+                       bg-white/5 backdrop-blur-md
+                       text-white text-[16px]
+                       border border-white/10
+                       focus:outline-none focus:border-white/20
+                       placeholder:text-white/40
+                       touch-manipulation"
+              autoFocus
+              onKeyUp={(e) => {
+                if (e.key === 'Enter' && userId.trim()) {
+                  handleGuestLogin()
+                }
+              }}
+            />
+            <p className="text-xs text-white/40 mt-2">
+              Enter the User ID you saved previously to access your journal.
+            </p>
+          </div>
+        )}
+
         {/* Start Journal/Continue Button */}
         <button
           onClick={handleGuestLogin}
@@ -109,7 +201,7 @@ export default function LoginPage() {
                    hover:scale-[1.02]
                    active:scale-[0.98]"
         >
-          {showNameInput ? 'Continue' : 'Start Journal'}
+          {showNameInput || showIdInput ? 'Continue' : loginMode === 'new' ? 'Start New Journal' : 'Access Journal'}
         </button>
       </div>
     </div>
