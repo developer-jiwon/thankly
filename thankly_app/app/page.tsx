@@ -29,6 +29,14 @@ interface Appreciation {
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+// Function to mask user ID for display (showing only asterisks)
+const maskUserIdForDisplay = (userId: string): string => {
+  if (!userId) return '';
+  
+  // Return a fixed number of asterisks regardless of the actual ID length
+  return '********************';
+};
+
 function implementUserTypeChanges() {
   const [appreciations, setAppreciations] = useState<Appreciation[]>([])
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -42,6 +50,7 @@ function implementUserTypeChanges() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
   const [copied, setCopied] = useState(false)
+  const [maskedUserId, setMaskedUserId] = useState('')
 
   useEffect(() => {
     setMounted(true)
@@ -52,6 +61,9 @@ function implementUserTypeChanges() {
     if (hashUserId && hashUserId.includes('-')) {
       localStorage.setItem('userId', hashUserId)
       localStorage.setItem('isAuthenticated', 'true')
+      
+      // Set masked user ID for display
+      setMaskedUserId(maskUserIdForDisplay(hashUserId));
       
       const storedAppreciations = localStorage.getItem(`appreciations_${hashUserId}`)
       if (storedAppreciations) {
@@ -197,6 +209,7 @@ function implementUserTypeChanges() {
     navigator.clipboard.writeText(userId)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    toast.success('User ID copied to clipboard')
   }
 
   useEffect(() => {
@@ -242,7 +255,7 @@ function implementUserTypeChanges() {
                              group w-fit"
                   >
                     <p className="text-xs text-white/40 font-light whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[200px]">
-                      User ID: {window.location.hash}
+                      User ID: {maskedUserId}
                     </p>
                     <span className="text-xs text-white/40 flex-shrink-0">
                       {copied ? (
