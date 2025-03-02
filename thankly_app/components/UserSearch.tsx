@@ -18,7 +18,7 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
   const [searchResults, setSearchResults] = useState<UserProfile[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
-  const searchUsers = async (term: string) => {
+  const searchUsers = (term: string) => {
     setIsSearching(true)
     
     try {
@@ -29,17 +29,32 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         return
       }
 
+      // Search through localStorage for all nicknames
       const results: UserProfile[] = []
       const seen = new Set<string>() // To prevent duplicates
 
-      // Search through localStorage for all users
+      // First, check the current URL hash for a user
+      const hashUserId = window.location.hash.slice(1)
+      if (hashUserId && !seen.has(hashUserId)) {
+        const nickname = localStorage.getItem(`nickname_${hashUserId}`)
+        if (nickname && nickname.toLowerCase().includes(term.toLowerCase())) {
+          results.push({
+            userId: hashUserId,
+            nickname,
+            profilePicture: localStorage.getItem(`profilePicture_${hashUserId}`)
+          })
+          seen.add(hashUserId)
+        }
+      }
+
+      // Then search through all localStorage items
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
         if (key && key.startsWith('nickname_')) {
           const userId = key.replace('nickname_', '')
           
-          // Skip if it's the current user
-          if (userId === currentUserId) continue
+          // Skip if we've already added this user or if it's the current user
+          if (seen.has(userId) || userId === currentUserId) continue
           
           const nickname = localStorage.getItem(key) || ''
           if (nickname.toLowerCase().includes(term.toLowerCase())) {
@@ -53,19 +68,6 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         }
       }
 
-      // Also check the current URL hash for a user
-      const hashUserId = window.location.hash.slice(1)
-      if (hashUserId && !seen.has(hashUserId) && hashUserId !== currentUserId) {
-        const nickname = localStorage.getItem(`nickname_${hashUserId}`)
-        if (nickname && nickname.toLowerCase().includes(term.toLowerCase())) {
-          results.push({
-            userId: hashUserId,
-            nickname,
-            profilePicture: localStorage.getItem(`profilePicture_${hashUserId}`)
-          })
-        }
-      }
-
       setSearchResults(results)
     } catch (error) {
       console.error('Error searching users:', error)
@@ -76,15 +78,11 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
   }
 
   useEffect(() => {
-    const delaySearch = setTimeout(() => {
-      if (searchTerm.length > 2) {
-        searchUsers(searchTerm)
-      } else {
-        setSearchResults([])
-      }
-    }, 300) // Add debounce to prevent too many searches
-
-    return () => clearTimeout(delaySearch)
+    if (searchTerm.length > 2) {
+      searchUsers(searchTerm)
+    } else {
+      setSearchResults([])
+    }
   }, [searchTerm])
 
   return (
