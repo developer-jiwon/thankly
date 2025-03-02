@@ -18,6 +18,38 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
   const [searchResults, setSearchResults] = useState<UserProfile[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
+  // Function to save user data to KV store
+  const saveUserToKV = async (userId: string) => {
+    try {
+      const nickname = localStorage.getItem(`nickname_${userId}`)
+      const profilePicture = localStorage.getItem(`profilePicture_${userId}`)
+      
+      if (!nickname) return
+
+      await fetch('/api/users/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          nickname,
+          profilePicture
+        })
+      })
+    } catch (error) {
+      console.error('Error saving user data:', error)
+    }
+  }
+
+  // Save current user data when component mounts
+  useEffect(() => {
+    const currentUserId = localStorage.getItem('originalUserId')
+    if (currentUserId) {
+      saveUserToKV(currentUserId)
+    }
+  }, [])
+
   const searchUsers = async (term: string) => {
     setIsSearching(true)
     
@@ -29,44 +61,20 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         return
       }
 
-      const results: UserProfile[] = []
-      const seen = new Set<string>() // To prevent duplicates
-
-      // Search through localStorage for all users
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
-        if (key && key.startsWith('nickname_')) {
-          const userId = key.replace('nickname_', '')
-          
-          // Skip if it's the current user
-          if (userId === currentUserId) continue
-          
-          const nickname = localStorage.getItem(key) || ''
-          if (nickname.toLowerCase().includes(term.toLowerCase())) {
-            results.push({
-              userId,
-              nickname,
-              profilePicture: localStorage.getItem(`profilePicture_${userId}`)
-            })
-            seen.add(userId)
-          }
-        }
+      // First get results from server
+      const response = await fetch(`/api/search-users?term=${encodeURIComponent(term)}&currentUserId=${encodeURIComponent(currentUserId)}`)
+      if (!response.ok) {
+        throw new Error('Server search failed')
       }
 
-      // Also check the current URL hash for a user
+      const serverResults = await response.json()
+      setSearchResults(serverResults)
+
+      // Save the current URL hash user's data if it exists
       const hashUserId = window.location.hash.slice(1)
-      if (hashUserId && !seen.has(hashUserId) && hashUserId !== currentUserId) {
-        const nickname = localStorage.getItem(`nickname_${hashUserId}`)
-        if (nickname && nickname.toLowerCase().includes(term.toLowerCase())) {
-          results.push({
-            userId: hashUserId,
-            nickname,
-            profilePicture: localStorage.getItem(`profilePicture_${hashUserId}`)
-          })
-        }
+      if (hashUserId) {
+        saveUserToKV(hashUserId)
       }
-
-      setSearchResults(results)
     } catch (error) {
       console.error('Error searching users:', error)
       setSearchResults([])
