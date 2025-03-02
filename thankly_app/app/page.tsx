@@ -141,6 +141,7 @@ function implementUserTypeChanges() {
   const router = useRouter()
   const [newAppreciation, setNewAppreciation] = useState({ title: '', text: '' })
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [editTitle, setEditTitle] = useState('')
   const [editText, setEditText] = useState('')
   const [copied, setCopied] = useState(false)
   const [maskedUserId, setMaskedUserId] = useState('')
@@ -336,15 +337,17 @@ function implementUserTypeChanges() {
 
   const handleEdit = (appreciation: Appreciation) => {
     setEditingId(appreciation.id)
+    setEditTitle(appreciation.title)
     setEditText(appreciation.text)
   }
 
   const handleSaveEdit = (id: number) => {
-    if (editText.trim()) {
+    if (editTitle.trim()) {
       setAppreciations(appreciations.map(a => 
-        a.id === id ? { ...a, text: editText.trim() } : a
+        a.id === id ? { ...a, title: editTitle.trim(), text: editText.trim() } : a
       ))
       setEditingId(null)
+      setEditTitle('')
       setEditText('')
     }
   }
@@ -416,6 +419,18 @@ function implementUserTypeChanges() {
       }
     }
   }, []);
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditTitle('');
+    setEditText('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
 
   if (!mounted) return null
   if (userType === 'unauthenticated') {
@@ -1239,8 +1254,8 @@ function implementUserTypeChanges() {
                                 <div className="space-y-3">
                                   <input
                                     type="text"
-                                    value={editText}
-                                    onChange={(e) => setEditText(e.target.value)}
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
                                     maxLength={100}
                                     className="w-full bg-transparent text-[16px] text-white 
                                              focus:outline-none border-b border-white/20
@@ -1248,6 +1263,7 @@ function implementUserTypeChanges() {
                                     placeholder="Title (required)"
                                     required
                                     autoFocus
+                                    onKeyDown={handleKeyDown}
                                   />
                                   <textarea
                                     value={editText}
@@ -1258,8 +1274,30 @@ function implementUserTypeChanges() {
                                              focus:outline-none border-b border-white/20
                                              touch-manipulation resize-none"
                                     placeholder="Write your gratitude entry..."
-                                    onBlur={() => handleSaveEdit(appreciation.id)}
+                                    onKeyDown={handleKeyDown}
                                   />
+                                  <div className="flex justify-end gap-3 mt-3">
+                                    <button
+                                      type="button"
+                                      onClick={handleCancelEdit}
+                                      className="px-3 py-1.5 text-sm text-white/70 hover:text-white
+                                               bg-white/10 hover:bg-white/20 rounded-full
+                                               transition-all duration-300"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="submit"
+                                      disabled={!editTitle.trim()}
+                                      className={`px-4 py-1.5 rounded-full text-sm
+                                              transition-all duration-300
+                                              ${editTitle.trim()
+                                                ? 'bg-[#A7D8DE] text-gray-900 hover:bg-[#86B4BA]' 
+                                                : 'bg-white/10 text-white/40 cursor-not-allowed'}`}
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
                                 </div>
                               </form>
                             ) : (
