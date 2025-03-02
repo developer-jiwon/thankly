@@ -16,6 +16,7 @@ import { UserSearch } from '../components/UserSearch'
 
 interface Appreciation {
   id: number
+  title: string
   text: string
   date: string
 }
@@ -37,6 +38,39 @@ const styles = `
     to { transform: translateY(0); opacity: 1; }
   }
   
+  @keyframes neonPulse {
+    0% {
+      box-shadow: 0 0 5px #A7D8DE,
+                0 0 10px #A7D8DE,
+                0 0 15px #A7D8DE;
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 10px #A7D8DE,
+                0 0 20px #A7D8DE,
+                0 0 30px #A7D8DE;
+      transform: scale(1.1);
+    }
+    100% {
+      box-shadow: 0 0 5px #A7D8DE,
+                0 0 10px #A7D8DE,
+                0 0 15px #A7D8DE;
+      transform: scale(1);
+    }
+  }
+
+  .date-hover {
+    transition: all 0.3s ease;
+  }
+
+  .date-hover:hover {
+    animation: neonPulse 1.5s ease-in-out infinite;
+    background: rgba(167, 216, 222, 0.3);
+    color: white;
+    text-shadow: 0 0 5px #A7D8DE,
+                0 0 10px #A7D8DE;
+  }
+
   .animate-slideDown {
     animation: slideDown 0.3s ease-out forwards;
   }
@@ -113,7 +147,7 @@ function implementUserTypeChanges() {
   const [userType, setUserType] = useState<'guest' | 'registered' | 'unauthenticated'>('unauthenticated')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const router = useRouter()
-  const [newAppreciation, setNewAppreciation] = useState('')
+  const [newAppreciation, setNewAppreciation] = useState({ title: '', text: '' })
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
   const [copied, setCopied] = useState(false)
@@ -283,14 +317,14 @@ function implementUserTypeChanges() {
     }
   }
 
-  const handleAddAppreciation = (text: string) => {
+  const handleAddAppreciation = (title: string, text: string) => {
     const userId = getUserId()
     if (!userId) {
       router.push('/login')
       return
     }
 
-    if (text.trim() && selectedDate) {
+    if ((title.trim() || text.trim()) && selectedDate) {
       const limits = getFeatureLimits(userType)
       const todayAppreciations = appreciations.filter(a => a.date === formatDate(new Date())).length
 
@@ -300,6 +334,7 @@ function implementUserTypeChanges() {
 
       const newEntry: Appreciation = {
         id: Date.now(),
+        title: title.trim(),
         text: text.trim(),
         date: formatDate(selectedDate)
       }
@@ -986,7 +1021,7 @@ function implementUserTypeChanges() {
                               gap-2 lg:gap-3
                               text-base mb-auto">
                   {WEEKDAYS.map(day => (
-                    <div key={day} className="text-center text-xs font-medium tracking-wider uppercase text-white/50">
+                    <div key={day} className="text-center text-sm font-medium tracking-wider uppercase text-white/50 mb-2">
                       {day.slice(0,1)}
                     </div>
                   ))}
@@ -1005,19 +1040,38 @@ function implementUserTypeChanges() {
                   {daysInMonth.map((date, index) => (
                     <motion.div 
                       key={date.toString()}
-                      className={`w-10 h-10 
+                      className={`w-12 h-12 lg:w-14 lg:h-14
                                 flex items-center justify-center 
                                 rounded-full
                                 relative
+                                date-hover
                                 ${isPastDate(date) || isReadOnlyMode ? 'opacity-40' : 'cursor-pointer'} 
                                 ${selectedDate && formatDate(selectedDate) === formatDate(date) 
                                   ? 'bg-[#A7D8DE]/70 shadow-[0_0_20px_rgba(167,216,222,0.4)]' 
-                                  : 'hover:bg-[#A7D8DE]/60 active:bg-[#A7D8DE]/70'}`}
+                                  : ''}`}
                       onClick={() => !isPastDate(date) && !isReadOnlyMode && handleDateClick(date)}
-                      whileHover={{ scale: isReadOnlyMode ? 1 : 1.15 }}
-                      whileTap={{ scale: isReadOnlyMode ? 1 : 0.95 }}
+                      whileHover={!isPastDate(date) && !isReadOnlyMode ? {
+                        scale: 1.2,
+                        transition: {
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 10
+                        }
+                      } : {}}
+                      whileTap={!isPastDate(date) && !isReadOnlyMode ? {
+                        scale: 0.95,
+                        transition: {
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 10
+                        }
+                      } : {}}
                     >
-                      <span className="text-base font-medium text-white group-hover:text-white">
+                      <span className={`text-lg lg:text-xl font-medium ${
+                        selectedDate && formatDate(selectedDate) === formatDate(date)
+                          ? 'text-white'
+                          : 'text-white/80'
+                      }`}>
                         {date.getDate()}
                       </span>
                       
@@ -1025,8 +1079,8 @@ function implementUserTypeChanges() {
                         const count = appreciations.filter(a => a.date === formatDate(date)).length;
                         if (count > 0) {
                           return (
-                            <div className={`absolute -top-1.5 ${count < 10 ? 'right-0.5' : '-right-0.5'}`}>
-                              <span className="text-[10px] font-medium text-white/80">
+                            <div className={`absolute -top-2 ${count < 10 ? 'right-1' : '-right-0.5'}`}>
+                              <span className="text-xs font-medium text-white/80">
                                 {count}
                               </span>
                             </div>
@@ -1096,9 +1150,9 @@ function implementUserTypeChanges() {
                     <motion.form 
                       onSubmit={(e) => {
                         e.preventDefault();
-                        if (newAppreciation.trim()) {
-                          handleAddAppreciation(newAppreciation);
-                          setNewAppreciation('');
+                        if (newAppreciation.title.trim() || newAppreciation.text.trim()) {
+                          handleAddAppreciation(newAppreciation.title, newAppreciation.text);
+                          setNewAppreciation({ title: '', text: '' });
                         }
                       }}
                       className="mb-6"
@@ -1108,107 +1162,181 @@ function implementUserTypeChanges() {
                       <label className="block text-white/60 text-sm mb-2 ml-1">
                         What are you grateful for today?
                       </label>
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={newAppreciation}
-                          onChange={(e) => setNewAppreciation(e.target.value)}
-                          className="w-full pl-6 p-3 text-[16px]
-                                   bg-surface/40 backdrop-blur-md text-white
-                                   rounded-lg border border-white/10
-                                   focus:outline-none focus:border-white/20 
-                                   touch-manipulation"
-                          autoFocus
-                        />
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={newAppreciation.title}
+                            onChange={(e) => setNewAppreciation(prev => ({ ...prev, title: e.target.value }))}
+                            maxLength={100}
+                            placeholder="Title (required)"
+                            className="w-full pl-6 p-3 text-[16px]
+                                     bg-surface/40 backdrop-blur-md text-white
+                                     rounded-lg border border-white/10
+                                     focus:outline-none focus:border-[#A7D8DE]/50 
+                                     touch-manipulation
+                                     placeholder:text-white/30
+                                     required:border-[#A7D8DE]/30"
+                            required
+                            autoFocus
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="text-xs text-white/40">
+                              {newAppreciation.title.length}/100
+                            </div>
+                          </div>
+                        </div>
+                        <div className="relative">
+                          <textarea
+                            value={newAppreciation.text}
+                            onChange={(e) => setNewAppreciation(prev => ({ ...prev, text: e.target.value }))}
+                            rows={3}
+                            maxLength={280}
+                            placeholder="Write your gratitude entry..."
+                            className="w-full pl-6 p-4 text-[16px]
+                                     bg-surface/40 backdrop-blur-md text-white
+                                     rounded-lg border border-white/10
+                                     focus:outline-none focus:border-white/20 
+                                     touch-manipulation resize-none
+                                     placeholder:text-white/30"
+                          />
+                          <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                            <div className="text-xs text-white/40">
+                              {newAppreciation.text.length}/280
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={!newAppreciation.title.trim()}
+                              className={`px-4 py-1.5 rounded-full text-sm
+                                      transition-all duration-300
+                                      ${newAppreciation.title.trim()
+                                        ? 'bg-[#A7D8DE] text-gray-900 hover:bg-[#86B4BA]' 
+                                        : 'bg-white/10 text-white/40 cursor-not-allowed'}`}
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </motion.form>
+
+                    {/* Entries List */}
+                    <div className="space-y-4">
+                      {appreciations
+                        .filter(a => !selectedDate || a.date === formatDate(selectedDate))
+                        .map((appreciation, index) => (
+                          <motion.div
+                            key={appreciation.id}
+                            className="p-5 rounded-xl
+                                     bg-white/5 backdrop-blur-md
+                                     border border-white/10
+                                     hover:bg-white/10 transition-all duration-300
+                                     group relative"
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ scale: 1.02 }}
+                            onDoubleClick={() => !isReadOnlyMode && handleEdit(appreciation)}
+                          >
+                            <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 
+                                          bg-white/40 rounded-full opacity-0 group-hover:opacity-100
+                                          transition-opacity duration-300" />
+                            {editingId === appreciation.id && !isReadOnlyMode ? (
+                              <form onSubmit={(e) => {
+                                e.preventDefault();
+                                handleSaveEdit(appreciation.id);
+                              }}>
+                                <div className="space-y-3">
+                                  <input
+                                    type="text"
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    maxLength={100}
+                                    className="w-full bg-transparent text-[16px] text-white 
+                                             focus:outline-none border-b border-white/20
+                                             touch-manipulation"
+                                    placeholder="Title (required)"
+                                    required
+                                    autoFocus
+                                  />
+                                  <textarea
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    rows={3}
+                                    maxLength={280}
+                                    className="w-full bg-transparent text-[16px] text-white 
+                                             focus:outline-none border-b border-white/20
+                                             touch-manipulation resize-none"
+                                    placeholder="Write your gratitude entry..."
+                                    onBlur={() => handleSaveEdit(appreciation.id)}
+                                  />
+                                </div>
+                              </form>
+                            ) : (
+                              <div>
+                                {appreciation.title && (
+                                  <motion.h3 
+                                    className="text-base font-semibold text-[#A7D8DE] mb-2"
+                                    initial={{ opacity: 0.8 }}
+                                    animate={{ 
+                                      opacity: [0.8, 1],
+                                      transition: { 
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatType: "reverse"
+                                      }
+                                    }}
+                                  >
+                                    {appreciation.title}
+                                  </motion.h3>
+                                )}
+                                <p className="text-sm flex-1 text-white/90 leading-relaxed
+                                          group-hover:text-white transition-colors duration-300
+                                          whitespace-pre-wrap break-words">
+                                  {appreciation.text}
+                                </p>
+                                <div className="mt-3 flex items-center justify-between">
+                                  <div className="text-xs text-white/40">
+                                    {new Date(appreciation.date).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </div>
+                                  {!isReadOnlyMode && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDeleteConfirmId(appreciation.id);
+                                      }}
+                                      className="opacity-0 group-hover:opacity-100
+                                             transition-opacity duration-300
+                                             hover:scale-110 active:scale-95"
+                                    >
+                                      <div className="p-1.5 rounded-full hover:bg-white/10
+                                                   transition-all duration-300">
+                                        <svg 
+                                          viewBox="0 0 24 24" 
+                                          className="w-4 h-4 text-white/40 hover:text-white/60
+                                                 transition-colors duration-300"
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          strokeWidth="2"
+                                        >
+                                          <path d="M4 6h16l-1.58 14.22A2 2 0 0116.432 22H7.568a2 2 0 01-1.988-1.78L4 6z" />
+                                          <path d="M7.345 3.147A2 2 0 019.154 2h5.692a2 2 0 011.81 1.147L18 6H6l1.345-2.853z" />
+                                          <path d="M9 11v6M15 11v6" strokeLinecap="round" />
+                                        </svg>
+                                      </div>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                    </div>
                   </>
                 )}
-
-                <div className="space-y-3">
-                  {appreciations
-                    .filter(a => !selectedDate || a.date === formatDate(selectedDate))
-                    .map((appreciation, index) => (
-                      <motion.div
-                        key={appreciation.id}
-                        className="p-4 rounded-xl
-                                 bg-white/5 backdrop-blur-md
-                                 border border-white/10
-                                 hover:bg-white/10 transition-all duration-300
-                                 group relative"
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ scale: 1.02 }}
-                        onDoubleClick={() => !isReadOnlyMode && handleEdit(appreciation)}
-                      >
-                        <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 
-                                      bg-white/40 rounded-full opacity-0 group-hover:opacity-100
-                                      transition-opacity duration-300" />
-                        {editingId === appreciation.id && !isReadOnlyMode ? (
-                          <form onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSaveEdit(appreciation.id);
-                          }}>
-                            <input
-                              type="text"
-                              value={editText}
-                              onChange={(e) => setEditText(e.target.value)}
-                              className="w-full bg-transparent text-[16px] text-white 
-                                       focus:outline-none border-b border-white/20
-                                       touch-manipulation"
-                              autoFocus
-                              onBlur={() => handleSaveEdit(appreciation.id)}
-                            />
-                          </form>
-                        ) : (
-                          <p className="text-sm flex-1 text-white/90 leading-relaxed
-                                      group-hover:text-white transition-colors duration-300">
-                            {appreciation.text}
-                          </p>
-                        )}
-                        {/* Delete button - only show when not in read-only mode */}
-                        {!isReadOnlyMode && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirmId(appreciation.id);
-                            }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2
-                                   opacity-0 group-hover:opacity-100
-                                   transition-opacity duration-300
-                                   hover:scale-110 active:scale-95"
-                          >
-                            <div className="w-5 h-5 flex items-center justify-center
-                                       group/icon transition-all duration-300
-                                       hover:shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                              <svg 
-                                viewBox="0 0 24 24" 
-                                className="w-4 h-4 text-white/40 group-hover/icon:text-white/60
-                                       transition-colors duration-300"
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="2"
-                              >
-                                <path 
-                                  d="M4 6h16l-1.58 14.22A2 2 0 0116.432 22H7.568a2 2 0 01-1.988-1.78L4 6z" 
-                                  className="group-hover/icon:stroke-white/80"
-                                />
-                                <path 
-                                  d="M7.345 3.147A2 2 0 019.154 2h5.692a2 2 0 011.81 1.147L18 6H6l1.345-2.853z" 
-                                  className="group-hover/icon:stroke-white/80"
-                                />
-                                <path 
-                                  d="M9 11v6M15 11v6" 
-                                  className="group-hover/icon:stroke-white/80"
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                            </div>
-                          </button>
-                        )}
-                      </motion.div>
-                    ))}
-                </div>
               </div>
             </div>
           </div>
