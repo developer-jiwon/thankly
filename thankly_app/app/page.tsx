@@ -450,11 +450,29 @@ function implementUserTypeChanges() {
             
             {/* Calendar Section */}
             <div className="w-full 
-                          lg:w-[500px] p-10
+                          lg:w-[500px] pt-16 pb-10 px-10
                           lg:border-r border-white/10
                           bg-transparent
                           flex items-center justify-center">
               <div className="max-w-sm relative">
+                {/* Viewing Indicator - Above Bookmarks */}
+                {isReadOnlyMode && (
+                  <motion.div 
+                    className="absolute -top-12 left-0 right-0 flex items-center justify-center z-50"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      transition: { delay: 0.2, duration: 0.3 }
+                    }}
+                  >
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#A7D8DE]/10 backdrop-blur-md border border-[#A7D8DE]/20">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#A7D8DE] animate-pulse" />
+                      <span className="text-xs text-white/90">Viewing {nickname}'s Journal</span>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Total Days Written Counter - Centered both vertically and horizontally */}
                 {!isReadOnlyMode && (
                   <motion.div 
