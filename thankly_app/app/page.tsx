@@ -1051,12 +1051,12 @@ function implementUserTypeChanges() {
                                 rounded-full
                                 relative
                                 date-hover
-                                ${isPastDate(date) || isReadOnlyMode ? 'opacity-40' : 'cursor-pointer'} 
+                                ${isPastDate(date) ? 'opacity-40' : 'cursor-pointer'} 
                                 ${selectedDate && formatDate(selectedDate) === formatDate(date) 
                                   ? 'bg-[#A7D8DE]/70 shadow-[0_0_20px_rgba(167,216,222,0.4)]' 
                                   : ''}`}
-                      onClick={() => !isPastDate(date) && !isReadOnlyMode && handleDateClick(date)}
-                      whileHover={!isPastDate(date) && !isReadOnlyMode ? {
+                      onClick={() => !isPastDate(date) && handleDateClick(date)}
+                      whileHover={!isPastDate(date) ? {
                         scale: 1.2,
                         transition: {
                           type: "spring",
@@ -1064,7 +1064,7 @@ function implementUserTypeChanges() {
                           damping: 10
                         }
                       } : {}}
-                      whileTap={!isPastDate(date) && !isReadOnlyMode ? {
+                      whileTap={!isPastDate(date) ? {
                         scale: 0.95,
                         transition: {
                           type: "spring",
@@ -1150,86 +1150,88 @@ function implementUserTypeChanges() {
                   </motion.div>
                 )}
 
-                {selectedDate && !isReadOnlyMode && (
+                {selectedDate && (
                   <>
-                    {/* Input Form with Label */}
-                    <motion.form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (newAppreciation.title.trim() || newAppreciation.text.trim()) {
-                          handleAddAppreciation(newAppreciation.title, newAppreciation.text);
-                          setNewAppreciation({ title: '', text: '' });
-                        }
-                      }}
-                      className="mb-6"
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <label className="block text-white/60 text-sm mb-2 ml-1">
-                        What are you grateful for today?
-                      </label>
-                      <div className="space-y-3">
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={newAppreciation.title}
-                            onChange={(e) => setNewAppreciation(prev => ({ ...prev, title: e.target.value }))}
-                            maxLength={100}
-                            placeholder="Title (required)"
-                            className="w-full pl-6 p-3 text-[16px]
-                                     bg-surface/40 backdrop-blur-md text-white
-                                     rounded-lg border border-white/10
-                                     focus:outline-none focus:border-[#A7D8DE]/50 
-                                     touch-manipulation
-                                     placeholder:text-white/30
-                                     required:border-[#A7D8DE]/30"
-                            required
-                            autoFocus
-                          />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <div className="text-xs text-white/40">
-                              {newAppreciation.title.length}/100
+                    {/* Input Form - Only show when not in read-only mode */}
+                    {!isReadOnlyMode && (
+                      <motion.form 
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (newAppreciation.title.trim() || newAppreciation.text.trim()) {
+                            handleAddAppreciation(newAppreciation.title, newAppreciation.text);
+                            setNewAppreciation({ title: '', text: '' });
+                          }
+                        }}
+                        className="mb-6"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <label className="block text-white/60 text-sm mb-2 ml-1">
+                          What are you grateful for today?
+                        </label>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={newAppreciation.title}
+                              onChange={(e) => setNewAppreciation(prev => ({ ...prev, title: e.target.value }))}
+                              maxLength={100}
+                              placeholder="Title (required)"
+                              className="w-full pl-6 p-3 text-[16px]
+                                       bg-surface/40 backdrop-blur-md text-white
+                                       rounded-lg border border-white/10
+                                       focus:outline-none focus:border-[#A7D8DE]/50 
+                                       touch-manipulation
+                                       placeholder:text-white/30
+                                       required:border-[#A7D8DE]/30"
+                              required
+                              autoFocus
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <div className="text-xs text-white/40">
+                                {newAppreciation.title.length}/100
+                              </div>
+                            </div>
+                          </div>
+                          <div className="relative">
+                            <textarea
+                              value={newAppreciation.text}
+                              onChange={(e) => setNewAppreciation(prev => ({ ...prev, text: e.target.value }))}
+                              rows={3}
+                              maxLength={280}
+                              placeholder="Write your gratitude entry..."
+                              className="w-full pl-6 p-4 text-[16px]
+                                       bg-surface/40 backdrop-blur-md text-white
+                                       rounded-lg border border-white/10
+                                       focus:outline-none focus:border-white/20 
+                                       touch-manipulation resize-none
+                                       placeholder:text-white/30"
+                            />
+                            <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                              <div className="text-xs text-white/40">
+                                {newAppreciation.text.length}/280
+                              </div>
+                              <button
+                                type="submit"
+                                disabled={!newAppreciation.title.trim()}
+                                className={`px-4 py-1.5 rounded-full text-sm
+                                        transition-all duration-300
+                                        ${newAppreciation.title.trim()
+                                          ? 'bg-[#A7D8DE] text-gray-900 hover:bg-[#86B4BA]' 
+                                          : 'bg-white/10 text-white/40 cursor-not-allowed'}`}
+                              >
+                                Add
+                              </button>
                             </div>
                           </div>
                         </div>
-                        <div className="relative">
-                          <textarea
-                            value={newAppreciation.text}
-                            onChange={(e) => setNewAppreciation(prev => ({ ...prev, text: e.target.value }))}
-                            rows={3}
-                            maxLength={280}
-                            placeholder="Write your gratitude entry..."
-                            className="w-full pl-6 p-4 text-[16px]
-                                     bg-surface/40 backdrop-blur-md text-white
-                                     rounded-lg border border-white/10
-                                     focus:outline-none focus:border-white/20 
-                                     touch-manipulation resize-none
-                                     placeholder:text-white/30"
-                          />
-                          <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                            <div className="text-xs text-white/40">
-                              {newAppreciation.text.length}/280
-                            </div>
-                            <button
-                              type="submit"
-                              disabled={!newAppreciation.title.trim()}
-                              className={`px-4 py-1.5 rounded-full text-sm
-                                      transition-all duration-300
-                                      ${newAppreciation.title.trim()
-                                        ? 'bg-[#A7D8DE] text-gray-900 hover:bg-[#86B4BA]' 
-                                        : 'bg-white/10 text-white/40 cursor-not-allowed'}`}
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.form>
+                      </motion.form>
+                    )}
 
-                    {/* Entries List */}
+                    {/* Entries List - Always show when date is selected */}
                     <div className="space-y-4">
                       {appreciations
-                        .filter(a => !selectedDate || a.date === formatDate(selectedDate))
+                        .filter(a => a.date === formatDate(selectedDate))
                         .map((appreciation, index) => (
                           <motion.div
                             key={appreciation.id}
