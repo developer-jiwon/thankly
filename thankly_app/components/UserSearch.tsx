@@ -29,77 +29,44 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         return
       }
 
-      // Get the global users list from localStorage
-      let globalUsers = localStorage.getItem('globalUsers')
-      let usersRegistry: UserProfile[] = []
+      // Search through localStorage for all nicknames
+      const results: UserProfile[] = []
+      const seen = new Set<string>() // To prevent duplicates
 
-      if (!globalUsers) {
-        // Initialize global users list with current user
-        const currentNickname = localStorage.getItem(`nickname_${currentUserId}`)
-        const currentProfilePic = localStorage.getItem(`profilePicture_${currentUserId}`)
-        
-        if (currentNickname) {
-          usersRegistry = [{
-            userId: currentUserId,
-            nickname: currentNickname,
-            profilePicture: currentProfilePic
-          }]
-          localStorage.setItem('globalUsers', JSON.stringify(usersRegistry))
-        }
-      } else {
-        usersRegistry = JSON.parse(globalUsers)
-        
-        // Update current user's info in the registry
-        const currentNickname = localStorage.getItem(`nickname_${currentUserId}`)
-        const currentProfilePic = localStorage.getItem(`profilePicture_${currentUserId}`)
-        
-        if (currentNickname) {
-          const existingUserIndex = usersRegistry.findIndex(u => u.userId === currentUserId)
-          const updatedUser = {
-            userId: currentUserId,
-            nickname: currentNickname,
-            profilePicture: currentProfilePic
-          }
-
-          if (existingUserIndex === -1) {
-            usersRegistry.push(updatedUser)
-          } else {
-            usersRegistry[existingUserIndex] = updatedUser
-          }
-
-          localStorage.setItem('globalUsers', JSON.stringify(usersRegistry))
-        }
-      }
-
-      // When visiting another user's profile, add them to the registry
+      // First, check the current URL hash for a user
       const hashUserId = window.location.hash.slice(1)
-      if (hashUserId && hashUserId !== currentUserId) {
-        const visitedNickname = localStorage.getItem(`nickname_${hashUserId}`)
-        const visitedProfilePic = localStorage.getItem(`profilePicture_${hashUserId}`)
-        
-        if (visitedNickname) {
-          const existingUserIndex = usersRegistry.findIndex(u => u.userId === hashUserId)
-          const visitedUser = {
+      if (hashUserId && !seen.has(hashUserId)) {
+        const nickname = localStorage.getItem(`nickname_${hashUserId}`)
+        if (nickname && nickname.toLowerCase().includes(term.toLowerCase())) {
+          results.push({
             userId: hashUserId,
-            nickname: visitedNickname,
-            profilePicture: visitedProfilePic
-          }
-
-          if (existingUserIndex === -1) {
-            usersRegistry.push(visitedUser)
-          } else {
-            usersRegistry[existingUserIndex] = visitedUser
-          }
-
-          localStorage.setItem('globalUsers', JSON.stringify(usersRegistry))
+            nickname,
+            profilePicture: localStorage.getItem(`profilePicture_${hashUserId}`)
+          })
+          seen.add(hashUserId)
         }
       }
 
-      // Filter users based on search term
-      const results = usersRegistry.filter(user => 
-        user.userId !== currentUserId && 
-        user.nickname.toLowerCase().includes(term.toLowerCase())
-      )
+      // Then search through all localStorage items
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('nickname_')) {
+          const userId = key.replace('nickname_', '')
+          
+          // Skip if we've already added this user or if it's the current user
+          if (seen.has(userId) || userId === currentUserId) continue
+          
+          const nickname = localStorage.getItem(key) || ''
+          if (nickname.toLowerCase().includes(term.toLowerCase())) {
+            results.push({
+              userId,
+              nickname,
+              profilePicture: localStorage.getItem(`profilePicture_${userId}`)
+            })
+            seen.add(userId)
+          }
+        }
+      }
 
       setSearchResults(results)
     } catch (error) {
@@ -109,14 +76,6 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
     
     setIsSearching(false)
   }
-
-  // Update global users list when component mounts and when profile changes
-  useEffect(() => {
-    const currentUserId = localStorage.getItem('originalUserId')
-    if (currentUserId) {
-      searchUsers('')  // This will update the global users list
-    }
-  }, [])
 
   useEffect(() => {
     if (searchTerm.length > 2) {
