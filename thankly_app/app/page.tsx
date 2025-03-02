@@ -432,23 +432,22 @@ function implementUserTypeChanges() {
   }
 
   return (
-    <div className="h-screen">
+    <div className="min-h-screen">
       <style jsx>{styles}</style>
       <div className="flex-1">
-        <div className="h-screen flex flex-col lg:flex items-center justify-center p-4 overflow-hidden">
+        <div className="min-h-screen flex flex-col lg:items-center lg:justify-center p-4">
           <div className="flex flex-col lg:flex-row w-full max-w-5xl 
                         bg-surface/95 backdrop-blur-lg
                         rounded-xl shadow-xl
-                        h-full lg:h-auto lg:min-h-[600px]">
+                        overflow-y-auto">
             
             {/* Calendar Section */}
             <div className="w-full 
                           lg:w-[500px] p-10
                           lg:border-r border-white/10
                           bg-transparent
-                          flex-shrink-0 flex flex-col justify-center relative
-                          lg:h-auto">
-              <div className="max-w-sm mx-auto relative">
+                          flex items-center justify-center">
+              <div className="max-w-sm relative">
                 {/* Total Days Written Counter - Centered both vertically and horizontally */}
                 {!isReadOnlyMode && (
                   <motion.div 
@@ -1095,7 +1094,7 @@ function implementUserTypeChanges() {
             </div>
 
             {/* Lists Section */}
-            <div className="flex-1 overflow-y-auto h-[calc(100vh-400px)] lg:h-[600px] flex justify-center">
+            <div className="flex-1 lg:h-[600px] flex justify-center overflow-y-auto">
               <div className="w-full max-w-md p-6">
                 {/* Total Days Written Milestone Message - Always show when there are days written */}
                 {!isReadOnlyMode && totalDaysWritten > 0 && (
