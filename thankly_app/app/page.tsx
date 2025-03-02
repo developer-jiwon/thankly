@@ -63,14 +63,6 @@ const styles = `
     transition: all 0.3s ease;
   }
 
-  .date-hover:hover {
-    animation: neonPulse 1.5s ease-in-out infinite;
-    background: rgba(167, 216, 222, 0.3);
-    color: white;
-    text-shadow: 0 0 5px #A7D8DE,
-                0 0 10px #A7D8DE;
-  }
-
   .animate-slideDown {
     animation: slideDown 0.3s ease-out forwards;
   }
