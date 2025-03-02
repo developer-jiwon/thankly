@@ -54,6 +54,7 @@ const styles = `
     transition: all 0.3s ease;
     flex-shrink: 0;
     margin: 0;
+    transform-origin: bottom center;
   }
   
   .bookmark-tab::after {
@@ -70,6 +71,16 @@ const styles = `
   
   .bookmark-tab:hover::after {
     opacity: 1;
+  }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  }
+  
+  .bookmark-tab:hover {
+    animation: pulseGlow 1.5s infinite;
   }
 `;
 
@@ -418,24 +429,93 @@ function implementUserTypeChanges() {
                             setNewNickname(nickname)
                           }
                         }}
-                        whileHover={{ y: -2 }}
-                        whileTap={{ y: 0 }}
+                        whileHover={{ 
+                          y: -4, 
+                          scale: 1.15,
+                          boxShadow: "0 -10px 25px rgba(167,216,222,0.3)",
+                          transition: { 
+                            y: { type: "spring", stiffness: 400, damping: 10 },
+                            scale: { type: "spring", stiffness: 300, damping: 8 },
+                            boxShadow: { duration: 0.2 }
+                          }
+                        }}
+                        whileTap={{ 
+                          scale: 0.85, 
+                          y: 2,
+                          transition: { type: "spring", stiffness: 400, damping: 10 } 
+                        }}
+                        initial={{ opacity: 0, y: 20, rotate: -5 }}
+                        animate={{ 
+                          opacity: 1, 
+                          y: 0,
+                          rotate: 0,
+                          transition: { 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 15,
+                            delay: 0.1
+                          }
+                        }}
                       >
                         <div className="flex items-center justify-center relative">
-                          <svg 
+                          <motion.svg 
                             viewBox="0 0 24 24" 
                             className="w-4 h-4 text-[#A7D8DE]"
                             fill="none" 
                             stroke="currentColor" 
                             strokeWidth="2"
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ 
+                              pathLength: 1, 
+                              opacity: 1,
+                              transition: { 
+                                pathLength: { delay: 0.2, duration: 1, ease: "easeInOut" },
+                                opacity: { delay: 0.2, duration: 0.4 }
+                              }
+                            }}
+                            whileHover={{
+                              scale: [1, 1.2, 1],
+                              rotate: [0, 10, -10, 0],
+                              transition: {
+                                duration: 0.8,
+                                ease: "easeInOut"
+                              }
+                            }}
                           >
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
+                            <motion.path 
+                              d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                              initial={{ pathLength: 0 }}
+                              animate={{ 
+                                pathLength: 1,
+                                transition: { delay: 0.3, duration: 0.8 }
+                              }}
+                            />
+                            <motion.circle 
+                              cx="12" 
+                              cy="7" 
+                              r="4"
+                              initial={{ pathLength: 0 }}
+                              animate={{ 
+                                pathLength: 1,
+                                transition: { delay: 0.5, duration: 0.8 }
+                              }}
+                            />
+                          </motion.svg>
                           {isReadOnlyMode && (
-                            <span className="absolute -top-2 -right-2 text-xs bg-[#A7D8DE]/20 text-[#A7D8DE] px-1 py-0.5 rounded-full text-[10px]">
+                            <motion.span 
+                              className="absolute -top-2 -right-2 text-xs bg-[#A7D8DE]/20 text-[#A7D8DE] px-1 py-0.5 rounded-full text-[10px]"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ 
+                                scale: [0, 1.3, 1],
+                                opacity: 1,
+                                transition: { 
+                                  scale: { type: "spring", stiffness: 500, damping: 10, delay: 0.3 },
+                                  opacity: { duration: 0.3, delay: 0.3 }
+                                }
+                              }}
+                            >
                               RO
-                            </span>
+                            </motion.span>
                           )}
                         </div>
                       </motion.div>
@@ -448,10 +528,69 @@ function implementUserTypeChanges() {
                                border-t border-l border-r border-white/10
                                shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
                       title="Find Users"
-                      whileHover={{ y: -2 }}
-                      whileTap={{ y: 0 }}
+                      whileHover={{ 
+                        y: -4, 
+                        boxShadow: "0 -8px 20px rgba(255,255,255,0.15)",
+                        backgroundColor: "rgba(255,255,255,0.15)",
+                        transition: { 
+                          type: "spring", 
+                          stiffness: 400, 
+                          damping: 8 
+                        }
+                      }}
+                      whileTap={{ 
+                        scale: 0.85, 
+                        y: 2,
+                        transition: { type: "spring", stiffness: 400, damping: 10 } 
+                      }}
+                      initial={{ opacity: 0, y: 20, rotate: 5 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        rotate: 0,
+                        transition: { 
+                          type: "spring", 
+                          stiffness: 400, 
+                          damping: 15,
+                          delay: 0.2
+                        }
+                      }}
                     >
-                      <Search className="w-4 h-4 text-white/60" />
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ 
+                          opacity: 1,
+                          transition: { delay: 0.4, duration: 0.3 }
+                        }}
+                        whileHover={{
+                          filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))",
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            rotate: [0, 360],
+                            transition: { 
+                              duration: 15, 
+                              repeat: Infinity,
+                              ease: "linear"
+                            }
+                          }}
+                        >
+                          <motion.div
+                            animate={{
+                              scale: [1, 1.1, 1],
+                              transition: { 
+                                duration: 2, 
+                                repeat: Infinity,
+                                repeatType: "reverse",
+                                ease: "easeInOut"
+                              }
+                            }}
+                          >
+                            <Search className="w-4 h-4 text-white/60" />
+                          </motion.div>
+                        </motion.div>
+                      </motion.div>
                     </motion.button>
                     
                     {/* User ID Info button (only when not in read-only mode) */}
@@ -462,10 +601,81 @@ function implementUserTypeChanges() {
                                  border-t border-l border-r border-white/10
                                  shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
                         title="Your User ID"
-                        whileHover={{ y: -2 }}
-                        whileTap={{ y: 0 }}
+                        whileHover={{ 
+                          y: -4, 
+                          scale: 1.15,
+                          backgroundColor: "rgba(255,255,255,0.15)",
+                          boxShadow: "0 -8px 20px rgba(255,255,255,0.2), 0 0 0 1px rgba(255,255,255,0.2)",
+                          transition: { 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 8 
+                          }
+                        }}
+                        whileTap={{ 
+                          scale: 0.85, 
+                          y: 2,
+                          transition: { type: "spring", stiffness: 400, damping: 10 } 
+                        }}
+                        initial={{ opacity: 0, y: 20, rotate: -5 }}
+                        animate={{ 
+                          opacity: 1, 
+                          y: 0,
+                          rotate: 0,
+                          transition: { 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 15,
+                            delay: 0.3
+                          }
+                        }}
                       >
-                        <Key className="w-4 h-4 text-white/60" />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ 
+                            opacity: 1,
+                            transition: { delay: 0.5, duration: 0.3 }
+                          }}
+                        >
+                          <motion.div
+                            animate={{
+                              y: [0, -2, 0, 2, 0],
+                              transition: { 
+                                duration: 4, 
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }
+                            }}
+                          >
+                            <motion.div
+                              whileHover={{
+                                rotateY: 180,
+                                transition: { duration: 0.4 }
+                              }}
+                              animate={{
+                                rotateZ: [0, 5, 0, -5, 0],
+                                transition: { 
+                                  duration: 6, 
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }
+                              }}
+                            >
+                              <motion.div
+                                animate={{
+                                  filter: ["drop-shadow(0 0 0px rgba(255,255,255,0))", "drop-shadow(0 0 3px rgba(255,255,255,0.6))", "drop-shadow(0 0 0px rgba(255,255,255,0))"],
+                                  transition: { 
+                                    duration: 2, 
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                  }
+                                }}
+                              >
+                                <Key className="w-4 h-4 text-white/60" />
+                              </motion.div>
+                            </motion.div>
+                          </motion.div>
+                        </motion.div>
                       </motion.button>
                     )}
                     
@@ -480,18 +690,92 @@ function implementUserTypeChanges() {
                                  border-t border-l border-r border-[#A7D8DE]/30
                                  shadow-[0_-5px_15px_rgba(167,216,222,0.1)]"
                         title="Return to my journal"
-                        whileHover={{ y: -2 }}
-                        whileTap={{ y: 0 }}
+                        whileHover={{ 
+                          y: -4, 
+                          x: -4,
+                          boxShadow: "0 -8px 20px rgba(167,216,222,0.3), -4px 0 10px rgba(167,216,222,0.2)",
+                          transition: { 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 8 
+                          }
+                        }}
+                        whileTap={{ 
+                          scale: 0.85, 
+                          x: -8,
+                          transition: { type: "spring", stiffness: 400, damping: 10 } 
+                        }}
+                        initial={{ opacity: 0, y: 20, x: 10 }}
+                        animate={{ 
+                          opacity: 1, 
+                          y: 0,
+                          x: 0,
+                          transition: { 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 15,
+                            delay: 0.3
+                          }
+                        }}
                       >
-                        <svg 
-                          viewBox="0 0 24 24" 
-                          className="w-4 h-4 text-[#A7D8DE]"
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2"
+                        <motion.div
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ 
+                            opacity: 1,
+                            x: 0,
+                            transition: { 
+                              delay: 0.5, 
+                              duration: 0.3,
+                              type: "spring",
+                              stiffness: 200
+                            }
+                          }}
                         >
-                          <path d="M3 12h18M3 12l6-6M3 12l6 6" />
-                        </svg>
+                          <motion.div
+                            animate={{
+                              x: [0, -5, 0],
+                              transition: { 
+                                duration: 1.5, 
+                                repeat: Infinity,
+                                repeatType: "reverse",
+                                ease: [0.25, 0.1, 0.25, 1]
+                              }
+                            }}
+                          >
+                            <motion.div
+                              whileHover={{
+                                x: -5,
+                                transition: { duration: 0.2 }
+                              }}
+                            >
+                              <motion.svg 
+                                viewBox="0 0 24 24" 
+                                className="w-4 h-4 text-[#A7D8DE]"
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2"
+                                initial={{ pathLength: 0, opacity: 0 }}
+                                animate={{ 
+                                  pathLength: 1, 
+                                  opacity: 1,
+                                  transition: { 
+                                    pathLength: { delay: 0.6, duration: 0.8, ease: "easeInOut" },
+                                    opacity: { delay: 0.6, duration: 0.3 }
+                                  }
+                                }}
+                              >
+                                <motion.path 
+                                  d="M3 12h18M3 12l6-6M3 12l6 6"
+                                  initial={{ pathLength: 0 }}
+                                  animate={{ 
+                                    pathLength: 1,
+                                    transition: { delay: 0.7, duration: 0.8 }
+                                  }}
+                                />
+                              </motion.svg>
+                            </motion.div>
+                          </motion.div>
+                        </motion.div>
                       </motion.button>
                     )}
                     
@@ -502,20 +786,110 @@ function implementUserTypeChanges() {
                                border-t border-l border-r border-white/10
                                shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
                       title="Logout"
-                      whileHover={{ y: -2 }}
-                      whileTap={{ y: 0 }}
+                      whileHover={{ 
+                        y: -4, 
+                        backgroundColor: "rgba(239,68,68,0.3)",
+                        boxShadow: "0 -8px 20px rgba(239,68,68,0.2), 0 0 0 1px rgba(239,68,68,0.3)",
+                        transition: { 
+                          type: "spring", 
+                          stiffness: 400, 
+                          damping: 8 
+                        }
+                      }}
+                      whileTap={{ 
+                        scale: 0.85, 
+                        rotate: 5,
+                        transition: { type: "spring", stiffness: 400, damping: 10 } 
+                      }}
+                      initial={{ opacity: 0, y: 20, rotate: 5 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        rotate: 0,
+                        transition: { 
+                          type: "spring", 
+                          stiffness: 400, 
+                          damping: 15,
+                          delay: 0.4
+                        }
+                      }}
                     >
-                      <svg 
-                        viewBox="0 0 24 24" 
-                        className="w-4 h-4 text-white/60 group-hover:text-red-400"
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2"
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ 
+                          opacity: 1,
+                          transition: { delay: 0.6, duration: 0.3 }
+                        }}
+                        whileHover={{
+                          filter: "drop-shadow(0 0 2px rgba(239,68,68,0.6))",
+                          transition: { duration: 0.2 }
+                        }}
                       >
-                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                        <path d="M16 17l5-5-5-5" />
-                        <path d="M21 12H9" />
-                      </svg>
+                        <motion.div
+                          whileHover={{
+                            x: 3,
+                            transition: { 
+                              type: "spring", 
+                              stiffness: 400, 
+                              damping: 10 
+                            }
+                          }}
+                          animate={{
+                            rotate: [0, 2, 0, -2, 0],
+                            transition: { 
+                              duration: 5, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }
+                          }}
+                        >
+                          <motion.svg 
+                            viewBox="0 0 24 24" 
+                            className="w-4 h-4 text-white/60 group-hover:text-red-400"
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ 
+                              pathLength: 1, 
+                              opacity: 1,
+                              transition: { 
+                                pathLength: { delay: 0.7, duration: 1, ease: "easeInOut" },
+                                opacity: { delay: 0.7, duration: 0.4 }
+                              }
+                            }}
+                          >
+                            <motion.path 
+                              d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+                              initial={{ pathLength: 0 }}
+                              animate={{ 
+                                pathLength: 1,
+                                transition: { delay: 0.8, duration: 0.8 }
+                              }}
+                            />
+                            <motion.path 
+                              d="M16 17l5-5-5-5"
+                              initial={{ pathLength: 0 }}
+                              animate={{ 
+                                pathLength: 1,
+                                transition: { delay: 0.9, duration: 0.8 }
+                              }}
+                            />
+                            <motion.path 
+                              d="M21 12H9"
+                              initial={{ pathLength: 0 }}
+                              animate={{ 
+                                pathLength: 1,
+                                transition: { delay: 1.0, duration: 0.8 }
+                              }}
+                              whileHover={{
+                                x: 2,
+                                transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" }
+                              }}
+                            />
+                          </motion.svg>
+                        </motion.div>
+                      </motion.div>
                     </motion.button>
                   </div>
 
