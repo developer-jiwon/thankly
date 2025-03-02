@@ -10,6 +10,7 @@ interface UserSearchProps {
 interface UserProfile {
   userId: string
   nickname: string
+  profilePicture?: string | null
 }
 
 export function UserSearch({ onSelectUser }: UserSearchProps) {
@@ -32,9 +33,10 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         if (key && key.startsWith('nickname_')) {
           const userId = key.replace('nickname_', '')
           const nickname = localStorage.getItem(key) || ''
+          const profilePicture = localStorage.getItem(`profilePicture_${userId}`)
           
           if (nickname.toLowerCase().includes(term.toLowerCase())) {
-            results.push({ userId, nickname })
+            results.push({ userId, nickname, profilePicture })
           }
         }
       }
@@ -85,9 +87,18 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                        transition-colors duration-200"
               onClick={() => onSelectUser(user.userId)}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/60 to-accent/60
-                           flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                {user.profilePicture ? (
+                  <img 
+                    src={user.profilePicture} 
+                    alt={`${user.nickname}'s profile`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-white/60" />
+                  </div>
+                )}
               </div>
               <div>
                 <div className="text-sm font-medium text-white">{user.nickname}</div>

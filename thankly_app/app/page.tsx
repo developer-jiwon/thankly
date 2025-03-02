@@ -146,8 +146,11 @@ function implementUserTypeChanges() {
   const [copied, setCopied] = useState(false)
   const [maskedUserId, setMaskedUserId] = useState('')
   const [nickname, setNickname] = useState('')
+  const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const [isEditingNickname, setIsEditingNickname] = useState(false)
   const [newNickname, setNewNickname] = useState('')
+  const [newProfilePicture, setNewProfilePicture] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isUserSearchOpen, setIsUserSearchOpen] = useState(false)
   const [isUserIdModalOpen, setIsUserIdModalOpen] = useState(false)
   const [actualUserId, setActualUserId] = useState('')
@@ -203,8 +206,10 @@ function implementUserTypeChanges() {
       // Set masked user ID for display
       setMaskedUserId(maskUserIdForDisplay(hashUserId));
       
-      // Load nickname if exists
+      // Load nickname and profile picture if exists
       const storedNickname = localStorage.getItem(`nickname_${hashUserId}`)
+      const storedProfilePicture = localStorage.getItem(`profilePicture_${hashUserId}`)
+      
       if (storedNickname) {
         setNickname(storedNickname)
       } else {
@@ -212,6 +217,10 @@ function implementUserTypeChanges() {
         const defaultNickname = `User${Math.floor(Math.random() * 10000)}`
         setNickname(defaultNickname)
         localStorage.setItem(`nickname_${hashUserId}`, defaultNickname)
+      }
+
+      if (storedProfilePicture) {
+        setProfilePicture(storedProfilePicture)
       }
       
       const storedAppreciations = localStorage.getItem(`appreciations_${hashUserId}`)
@@ -364,9 +373,36 @@ function implementUserTypeChanges() {
       if (userId) {
         setNickname(newNickname.trim())
         localStorage.setItem(`nickname_${userId}`, newNickname.trim())
+        
+        // Handle profile picture save
+        if (newProfilePicture) {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const base64String = reader.result as string
+            setProfilePicture(base64String)
+            localStorage.setItem(`profilePicture_${userId}`, base64String)
+          }
+          reader.readAsDataURL(newProfilePicture)
+        }
+        
         setIsEditingNickname(false)
         setNewNickname('')
+        setNewProfilePicture(null)
+        setPreviewUrl(null)
       }
+    }
+  }
+
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('Please choose an image under 5MB')
+        return
+      }
+      setNewProfilePicture(file)
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
     }
   }
 
@@ -515,101 +551,49 @@ function implementUserTypeChanges() {
                   {/* Single container for all bookmark tabs with consistent spacing */}
                   <div className="flex items-end space-x-0">
                     {/* User Profile/Nickname bookmark */}
-                    {isEditingNickname ? (
-                      <div className="absolute top-0 left-0 z-10 animate-slideDown">
-                        <div className="flex items-center gap-2 bg-[#A7D8DE]/20 backdrop-blur-md px-4 py-3 rounded-lg shadow-lg border border-[#A7D8DE]/30">
-                          <input
-                            type="text"
-                            value={newNickname}
-                            onChange={(e) => setNewNickname(e.target.value)}
-                            placeholder="Enter nickname"
-                            className="px-3 py-1.5 text-xs bg-white/10 text-white rounded-full 
-                                     border border-white/20 focus:outline-none focus:border-white/40"
-                            autoFocus
-                          />
-                          <button
-                            onClick={handleSaveNickname}
-                            className="px-2 py-1 text-xs bg-white/10 hover:bg-white/20 
-                                     text-white rounded-full transition-all duration-300"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => {
-                              setIsEditingNickname(false)
-                              setNewNickname('')
-                            }}
-                            className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 
-                                     text-white/60 rounded-full transition-all duration-300"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <motion.div 
-                        className="bookmark-tab bg-[#A7D8DE]/20 hover:bg-[#A7D8DE]/30
-                                 border-t border-l border-r border-[#A7D8DE]/30
-                                 shadow-[0_-5px_15px_rgba(167,216,222,0.1)]
-                                 cursor-pointer group"
-                        onClick={() => {
-                          if (!isReadOnlyMode) {
-                            setIsEditingNickname(true)
-                            setNewNickname(nickname)
-                          }
-                        }}
-                        whileHover={{ 
-                          y: -4, 
-                          scale: 1.15,
-                          boxShadow: "0 -10px 25px rgba(167,216,222,0.3)",
-                          transition: { 
-                            y: { type: "spring", stiffness: 400, damping: 10 },
-                            scale: { type: "spring", stiffness: 300, damping: 8 },
-                            boxShadow: { duration: 0.2 }
-                          }
-                        }}
-                        whileTap={{ 
-                          scale: 0.85, 
-                          y: 2,
-                          transition: { type: "spring", stiffness: 400, damping: 10 } 
-                        }}
-                        initial={{ opacity: 0, y: 20, rotate: -5 }}
-                        animate={{ 
-                          opacity: 1, 
-                          y: 0,
-                          rotate: 0,
-                          transition: { 
-                            type: "spring", 
-                            stiffness: 400, 
-                            damping: 15,
-                            delay: 0.1
-                          }
-                        }}
-                      >
-                        <div className="flex items-center justify-center relative">
+                    <motion.div 
+                      className="bookmark-tab bg-[#A7D8DE]/20 hover:bg-[#A7D8DE]/30
+                               border-t border-l border-r border-[#A7D8DE]/30
+                               shadow-[0_-5px_15px_rgba(167,216,222,0.1)]
+                               cursor-pointer group relative"
+                      onClick={() => {
+                        if (!isReadOnlyMode) {
+                          setIsEditingNickname(true);
+                          setNewNickname(nickname);
+                        }
+                      }}
+                      whileHover={{ 
+                        y: -4, 
+                        scale: 1.15,
+                        boxShadow: "0 -10px 25px rgba(167,216,222,0.3)",
+                        transition: { 
+                          y: { type: "spring", stiffness: 400, damping: 10 },
+                          scale: { type: "spring", stiffness: 300, damping: 8 },
+                          boxShadow: { duration: 0.2 }
+                        }
+                      }}
+                      whileTap={{ 
+                        scale: 0.85, 
+                        y: 2,
+                        transition: { type: "spring", stiffness: 400, damping: 10 } 
+                      }}
+                    >
+                      <div className="flex items-center justify-center relative">
+                        {profilePicture ? (
+                          <div className="w-5 h-5 rounded-full overflow-hidden">
+                            <img 
+                              src={profilePicture} 
+                              alt="Profile" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
                           <motion.svg 
                             viewBox="0 0 24 24" 
                             className="w-4 h-4 text-[#A7D8DE]"
                             fill="none" 
                             stroke="currentColor" 
                             strokeWidth="2"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ 
-                              pathLength: 1, 
-                              opacity: 1,
-                              transition: { 
-                                pathLength: { delay: 0.2, duration: 1, ease: "easeInOut" },
-                                opacity: { delay: 0.2, duration: 0.4 }
-                              }
-                            }}
-                            whileHover={{
-                              scale: [1, 1.2, 1],
-                              rotate: [0, 10, -10, 0],
-                              transition: {
-                                duration: 0.8,
-                                ease: "easeInOut"
-                              }
-                            }}
                           >
                             <motion.path 
                               d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
@@ -630,9 +614,9 @@ function implementUserTypeChanges() {
                               }}
                             />
                           </motion.svg>
-                        </div>
-                      </motion.div>
-                    )}
+                        )}
+                      </div>
+                    </motion.div>
                     
                     {/* Find Users button */}
                     <motion.button
@@ -700,7 +684,19 @@ function implementUserTypeChanges() {
                               }
                             }}
                           >
-                            <Search className="w-4 h-4 text-white/60" />
+                            <motion.div
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                transition: { 
+                                  duration: 2, 
+                                  repeat: Infinity,
+                                  repeatType: "reverse",
+                                  ease: "easeInOut"
+                                }
+                              }}
+                            >
+                              <Search className="w-4 h-4 text-white/60" />
+                            </motion.div>
                           </motion.div>
                         </motion.div>
                       </motion.div>
@@ -1520,6 +1516,125 @@ function implementUserTypeChanges() {
           </div>
         </div>
       )}
+
+      {/* Nickname Edit Modal */}
+      <AnimatePresence>
+        {isEditingNickname && (
+          <motion.div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setIsEditingNickname(false)
+              setNewNickname('')
+              setNewProfilePicture(null)
+              setPreviewUrl(null)
+            }}
+          >
+            <motion.div 
+              className="bg-surface/95 backdrop-blur-lg rounded-xl shadow-xl p-6 w-full max-w-sm"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ 
+                scale: 1, 
+                y: 0,
+                transition: { type: "spring", stiffness: 400, damping: 15 }
+              }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-white">Edit Profile</h3>
+                <button
+                  onClick={() => {
+                    setIsEditingNickname(false)
+                    setNewNickname('')
+                    setNewProfilePicture(null)
+                    setPreviewUrl(null)
+                  }}
+                  className="p-1 hover:bg-white/10 rounded-full transition-all duration-300"
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="relative group mx-auto">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-white/40 transition-all duration-300">
+                    {(previewUrl || profilePicture) ? (
+                      <img 
+                        src={previewUrl || profilePicture || ''} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                        <svg className="w-10 h-10 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    aria-label="Choose profile picture from device"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full flex flex-col items-center justify-center">
+                    <svg className="w-8 h-8 text-white mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-[10px] text-white/90 text-center px-1">
+                      Tap to choose photo
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    value={newNickname}
+                    onChange={(e) => setNewNickname(e.target.value)}
+                    placeholder="Enter nickname"
+                    className="w-full px-4 py-2.5 text-sm bg-white/10 text-white rounded-lg 
+                             border border-white/20 focus:outline-none focus:border-white/40"
+                    autoFocus
+                  />
+                  <p className="text-xs text-white/60 mt-2 text-center">
+                    Click the image above to upload a profile picture
+                  </p>
+                </div>
+
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => {
+                      setIsEditingNickname(false)
+                      setNewNickname('')
+                      setNewProfilePicture(null)
+                      setPreviewUrl(null)
+                    }}
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg transition-all duration-300 text-sm text-white"
+                  >
+                    Cancel
+                  </button>
+                  
+                  <button
+                    onClick={handleSaveNickname}
+                    className="flex-1 py-2.5 bg-[#A7D8DE]/30 hover:bg-[#A7D8DE]/40 rounded-lg transition-all duration-300 text-sm text-white"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
