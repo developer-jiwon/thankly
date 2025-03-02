@@ -3,24 +3,16 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Search, Key, Info } from 'lucide-react'
-import { getDaysInMonth, formatDate } from '../utils/dateUtils'
+import { getDaysInMonth, formatDate, getFirstDayOfMonth } from '../utils/dateUtils'
 import { getUserType, getFeatureLimits } from '../utils/userUtils'
 import { SideNav } from '../components/SideNav'
 import { Settings } from '../components/Settings'
 import { SearchAppreciations } from '../components/SearchAppreciations'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import { getUserId } from '../utils/userIdentifier'
 import { Toast } from '@/components/Toast'
 import { UserSearch } from '../components/UserSearch'
-
-const isPastDate = (date: Date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return date < today;
-};
 
 interface Appreciation {
   id: number
@@ -38,11 +30,74 @@ const maskUserIdForDisplay = (userId: string): string => {
   return '********************';
 };
 
+// CSS for bookmark tabs only (removing toast customization)
+const styles = `
+  @keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out forwards;
+  }
+  
+  .bookmark-tab {
+    position: relative;
+    width: 40px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  
+  .bookmark-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .bookmark-tab:hover::after {
+    opacity: 1;
+  }
+`;
+
 function implementUserTypeChanges() {
   const [appreciations, setAppreciations] = useState<Appreciation[]>([])
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [currentMonth, setCurrentMonth] = useState(() => new Date())
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    // Initialize with current month/year
+    return new Date()
+  })
   const [mounted, setMounted] = useState(false)
+  
+  // Function to check if a date is in the past (moved inside component)
+  const isPastDate = (date: Date) => {
+    // Allow selection of any date in the current month or future
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // If it's the same month and year as the current view, allow selection
+    if (date.getMonth() === currentMonth.getMonth() && 
+        date.getFullYear() === currentMonth.getFullYear()) {
+      return false;
+    }
+    
+    // Otherwise, check if it's in the past
+    return date < today;
+  };
+  
   const [selectedNavItem, setSelectedNavItem] = useState('Home')
   const [userType, setUserType] = useState<'guest' | 'registered' | 'unauthenticated'>('unauthenticated')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -172,7 +227,6 @@ function implementUserTypeChanges() {
   const handleExportData = () => {
     const limits = getFeatureLimits(userType)
     if (!limits.canExport) {
-      toast.error('Export feature is only available for registered users.')
       return
     }
 
@@ -184,7 +238,6 @@ function implementUserTypeChanges() {
     linkElement.setAttribute('href', dataUri)
     linkElement.setAttribute('download', exportFileDefaultName)
     linkElement.click()
-    toast.success('Data exported successfully!')
   }
 
   const handleSearchSelect = (selectedIds: number[]) => {
@@ -212,14 +265,12 @@ function implementUserTypeChanges() {
       }
     } else {
       navigator.clipboard.writeText(shareableLink)
-      toast.success('Link copied to clipboard!')
     }
   }
 
   const handleAddAppreciation = (text: string) => {
     const userId = getUserId()
     if (!userId) {
-      toast.error('Session expired. Please login again.')
       router.push('/login')
       return
     }
@@ -229,7 +280,6 @@ function implementUserTypeChanges() {
       const todayAppreciations = appreciations.filter(a => a.date === formatDate(new Date())).length
 
       if (todayAppreciations >= limits.maxAppreciationsPerDay) {
-        toast.error(`You've reached the limit of ${limits.maxAppreciationsPerDay} appreciations per day.`)
         return
       }
 
@@ -271,7 +321,6 @@ function implementUserTypeChanges() {
         localStorage.setItem(`nickname_${userId}`, newNickname.trim())
         setIsEditingNickname(false)
         setNewNickname('')
-        toast.success('Nickname updated successfully!')
       }
     }
   }
@@ -305,10 +354,9 @@ function implementUserTypeChanges() {
   }
 
   return (
-    <div className="h-screen flex">
-      <SideNav onNavItemClick={setSelectedNavItem} onLogout={handleLogout} />
-      
-      <div className="flex-1 pl-[40px]">
+    <div className="h-screen">
+      <style jsx>{styles}</style>
+      <div className="flex-1">
         <div className="h-screen flex flex-col lg:flex items-start lg:items-center lg:justify-center p-4 overflow-hidden">
           <div className="flex flex-col lg:flex-row w-full max-w-5xl 
                         bg-surface/95 backdrop-blur-lg
@@ -323,95 +371,117 @@ function implementUserTypeChanges() {
                           flex-shrink-0 flex flex-col justify-center relative
                           lg:h-auto">
               <div className="max-w-sm mx-auto relative">
-                <div className="mb-6 flex justify-between items-center">
-                  {/* Nickname display and edit */}
-                  {isEditingNickname ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newNickname}
-                        onChange={(e) => setNewNickname(e.target.value)}
-                        placeholder="Enter nickname"
-                        className="px-3 py-1.5 text-xs bg-white/10 text-white rounded-full 
-                                 border border-white/20 focus:outline-none focus:border-white/40"
-                        autoFocus
-                      />
-                      <button
-                        onClick={handleSaveNickname}
-                        className="px-2 py-1 text-xs bg-white/10 hover:bg-white/20 
-                                 text-white rounded-full transition-all duration-300"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditingNickname(false)
-                          setNewNickname('')
-                        }}
-                        className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 
-                                 text-white/60 rounded-full transition-all duration-300"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 px-3 py-1.5 
-                               bg-white/5 rounded-full w-fit">
-                        <p className="text-xs text-white/40 font-light whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[150px]">
-                          {nickname}
-                        </p>
-                        {isReadOnlyMode && (
-                          <span className="text-xs bg-[#A7D8DE]/20 text-[#A7D8DE] px-2 py-0.5 rounded-full">
-                            Read Only
-                          </span>
-                        )}
+                <div className="mb-6 flex justify-between items-end">
+                  {/* Single container for all bookmark tabs with consistent spacing */}
+                  <div className="flex items-end space-x-0">
+                    {/* User Profile/Nickname bookmark */}
+                    {isEditingNickname ? (
+                      <div className="absolute top-0 left-0 z-10 animate-slideDown">
+                        <div className="flex items-center gap-2 bg-[#A7D8DE]/20 backdrop-blur-md px-4 py-3 rounded-lg shadow-lg border border-[#A7D8DE]/30">
+                          <input
+                            type="text"
+                            value={newNickname}
+                            onChange={(e) => setNewNickname(e.target.value)}
+                            placeholder="Enter nickname"
+                            className="px-3 py-1.5 text-xs bg-white/10 text-white rounded-full 
+                                     border border-white/20 focus:outline-none focus:border-white/40"
+                            autoFocus
+                          />
+                          <button
+                            onClick={handleSaveNickname}
+                            className="px-2 py-1 text-xs bg-white/10 hover:bg-white/20 
+                                     text-white rounded-full transition-all duration-300"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsEditingNickname(false)
+                              setNewNickname('')
+                            }}
+                            className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 
+                                     text-white/60 rounded-full transition-all duration-300"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                      {!isReadOnlyMode && (
-                        <button
-                          onClick={() => {
+                    ) : (
+                      <motion.div 
+                        className="bookmark-tab bg-[#A7D8DE]/20 hover:bg-[#A7D8DE]/30
+                                 border-t border-l border-r border-[#A7D8DE]/30
+                                 shadow-[0_-5px_15px_rgba(167,216,222,0.1)]
+                                 cursor-pointer group"
+                        onClick={() => {
+                          if (!isReadOnlyMode) {
                             setIsEditingNickname(true)
                             setNewNickname(nickname)
-                          }}
-                          className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-all duration-300"
-                          title="Edit nickname"
-                        >
+                          }
+                        }}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 0 }}
+                      >
+                        <div className="flex items-center justify-center relative">
                           <svg 
                             viewBox="0 0 24 24" 
-                            className="w-3 h-3 text-white/40"
+                            className="w-4 h-4 text-[#A7D8DE]"
                             fill="none" 
                             stroke="currentColor" 
                             strokeWidth="2"
                           >
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
                           </svg>
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Add buttons container */}
-                  <div className="flex items-center gap-2">
+                          {isReadOnlyMode && (
+                            <span className="absolute -top-2 -right-2 text-xs bg-[#A7D8DE]/20 text-[#A7D8DE] px-1 py-0.5 rounded-full text-[10px]">
+                              RO
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                    
                     {/* Find Users button */}
-                    <button
+                    <motion.button
                       onClick={() => setIsUserSearchOpen(true)}
-                      className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all duration-300 flex items-center gap-1"
-                      title="Find users"
+                      className="bookmark-tab bg-white/5 hover:bg-white/10
+                               border-t border-l border-r border-white/10
+                               shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
+                      title="Find Users"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 0 }}
                     >
                       <Search className="w-4 h-4 text-white/60" />
-                      <span className="text-xs text-white/60">Find Users</span>
-                    </button>
+                    </motion.button>
+                    
+                    {/* User ID Info button (only when not in read-only mode) */}
+                    {!isReadOnlyMode && (
+                      <motion.button
+                        onClick={() => setIsUserIdModalOpen(true)}
+                        className="bookmark-tab bg-white/5 hover:bg-white/10
+                                 border-t border-l border-r border-white/10
+                                 shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
+                        title="Your User ID"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 0 }}
+                      >
+                        <Key className="w-4 h-4 text-white/60" />
+                      </motion.button>
+                    )}
                     
                     {/* Return to My Journal button (only in read-only mode) */}
                     {isReadOnlyMode && (
-                      <button
+                      <motion.button
                         onClick={() => {
                           window.location.href = `${window.location.origin}${window.location.pathname}#${originalUserId}`
                           window.location.reload()
                         }}
-                        className="p-2 bg-[#A7D8DE]/20 hover:bg-[#A7D8DE]/30 rounded-full transition-all duration-300 flex items-center gap-1"
+                        className="bookmark-tab bg-[#A7D8DE]/20 hover:bg-[#A7D8DE]/30
+                                 border-t border-l border-r border-[#A7D8DE]/30
+                                 shadow-[0_-5px_15px_rgba(167,216,222,0.1)]"
                         title="Return to my journal"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 0 }}
                       >
                         <svg 
                           viewBox="0 0 24 24" 
@@ -422,22 +492,35 @@ function implementUserTypeChanges() {
                         >
                           <path d="M3 12h18M3 12l6-6M3 12l6 6" />
                         </svg>
-                        <span className="text-xs text-[#A7D8DE]">My Journal</span>
-                      </button>
+                      </motion.button>
                     )}
                     
-                    {/* User ID Info button (only when not in read-only mode) */}
-                    {!isReadOnlyMode && (
-                      <button
-                        onClick={() => setIsUserIdModalOpen(true)}
-                        className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all duration-300 flex items-center gap-1"
-                        title="Your User ID"
+                    {/* Logout button */}
+                    <motion.button
+                      onClick={handleLogout}
+                      className="bookmark-tab bg-white/5 hover:bg-red-500/20
+                               border-t border-l border-r border-white/10
+                               shadow-[0_-5px_15px_rgba(255,255,255,0.05)]"
+                      title="Logout"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 0 }}
+                    >
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-4 h-4 text-white/60 group-hover:text-red-400"
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2"
                       >
-                        <Key className="w-4 h-4 text-white/60" />
-                        <span className="text-xs text-white/60">Your ID</span>
-                      </button>
-                    )}
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                        <path d="M16 17l5-5-5-5" />
+                        <path d="M21 12H9" />
+                      </svg>
+                    </motion.button>
                   </div>
+
+                  {/* Empty div to maintain the flex layout */}
+                  <div></div>
                 </div>
 
                 <div className="flex items-center justify-between mb-10 px-2">
@@ -466,6 +549,17 @@ function implementUserTypeChanges() {
                       {day.slice(0,1)}
                     </div>
                   ))}
+                  
+                  {/* Add empty cells for days before the first of the month */}
+                  {(() => {
+                    // Get the first day of the month
+                    const firstDayOfWeek = getFirstDayOfMonth(currentMonth.getFullYear(), currentMonth.getMonth());
+                    
+                    // Create empty cells for proper alignment
+                    return Array.from({ length: firstDayOfWeek }).map((_, index) => (
+                      <div key={`empty-${index}`} className="w-10 h-10"></div>
+                    ));
+                  })()}
                   
                   {daysInMonth.map((date, index) => (
                     <motion.div 
@@ -671,28 +765,9 @@ function implementUserTypeChanges() {
               </button>
             </div>
             
-            <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-white/80 font-mono break-all">{actualUserId}</p>
-                <button
-                  onClick={handleCopyUserId}
-                  className="ml-2 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 flex-shrink-0"
-                  title="Copy to clipboard"
-                >
-                  {copied ? (
-                    <span className="text-xs text-white/80 px-2">Copied!</span>
-                  ) : (
-                    <svg 
-                      viewBox="0 0 24 24" 
-                      className="w-4 h-4 text-white/60"
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2"
-                    >
-                      <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                    </svg>
-                  )}
-                </button>
+            <div className="mb-4 p-4 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center justify-center">
+                <p className="text-base md:text-lg font-mono text-white/90 break-all text-center">{actualUserId}</p>
               </div>
             </div>
             
@@ -714,7 +789,7 @@ function implementUserTypeChanges() {
                 onClick={handleCopyUserId}
                 className="w-full py-2.5 bg-white/10 hover:bg-white/15 rounded-lg transition-all duration-300 text-sm text-white"
               >
-                Copy to Clipboard
+                {copied ? "Copied!" : "Copy to Clipboard"}
               </button>
               
               <button
@@ -727,7 +802,6 @@ function implementUserTypeChanges() {
                   document.body.appendChild(element);
                   element.click();
                   document.body.removeChild(element);
-                  toast.success('User ID saved to file');
                 }}
                 className="w-full py-2.5 bg-[#A7D8DE]/30 hover:bg-[#A7D8DE]/40 rounded-lg transition-all duration-300 text-sm text-white shadow-[0_0_10px_rgba(167,216,222,0.2)]"
               >
@@ -737,11 +811,6 @@ function implementUserTypeChanges() {
           </div>
         </div>
       )}
-
-      <ToastContainer 
-        position="bottom-right"
-        className="text-sm sm:text-base"
-      />
     </div>
   )
 }

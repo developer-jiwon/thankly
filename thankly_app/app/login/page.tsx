@@ -50,6 +50,9 @@ export default function LoginPage() {
       // This is a new user, so set this as their original ID
       localStorage.setItem('originalUserId', newUserId)
       
+      // Store the nickname for this user ID
+      localStorage.setItem(`nickname_${newUserId}`, name.trim())
+      
       // Use window.location.replace for consistent behavior across platforms
       window.location.replace(`/#${newUserId}`)
     } else {
@@ -64,18 +67,32 @@ export default function LoginPage() {
         return
       }
 
+      const trimmedUserId = userId.trim()
+      
+      // Check if we already have a nickname stored for this user ID
+      const existingNickname = localStorage.getItem(`nickname_${trimmedUserId}`)
+      
+      // If no nickname exists, use the first part of the user ID as a fallback
+      // or create a default nickname
+      if (!existingNickname) {
+        // Extract the name part from the user ID (before the first hyphen)
+        const namePart = trimmedUserId.split('-')[0]
+        const defaultNickname = namePart || `User${Math.floor(Math.random() * 10000)}`
+        localStorage.setItem(`nickname_${trimmedUserId}`, defaultNickname)
+      }
+      
       localStorage.setItem('isGuest', 'true')
       localStorage.setItem('isAuthenticated', 'true')
-      localStorage.setItem('userId', userId.trim())
+      localStorage.setItem('userId', trimmedUserId)
       
       // Set a flag to indicate this is the user's own journal
       localStorage.setItem('cameFromLogin', 'true')
       
       // Set this as the user's original ID
-      localStorage.setItem('originalUserId', userId.trim())
+      localStorage.setItem('originalUserId', trimmedUserId)
       
       // Use window.location.replace for consistent behavior across platforms
-      window.location.replace(`/#${userId.trim()}`)
+      window.location.replace(`/#${trimmedUserId}`)
     }
   }
 
