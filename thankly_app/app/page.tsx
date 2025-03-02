@@ -612,22 +612,6 @@ function implementUserTypeChanges() {
                               }}
                             />
                           </motion.svg>
-                          {isReadOnlyMode && (
-                            <motion.span 
-                              className="absolute -top-2 -right-2 text-xs bg-[#A7D8DE]/20 text-[#A7D8DE] px-1 py-0.5 rounded-full text-[10px]"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ 
-                                scale: [0, 1.3, 1],
-                                opacity: 1,
-                                transition: { 
-                                  scale: { type: "spring", stiffness: 500, damping: 10, delay: 0.3 },
-                                  opacity: { duration: 0.3, delay: 0.3 }
-                                }
-                              }}
-                            >
-                              RO
-                            </motion.span>
-                          )}
                         </div>
                       </motion.div>
                     )}
